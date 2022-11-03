@@ -7,7 +7,7 @@ head(station_list)
 
 weather<-handle_gsod(action="download_weather",
                      location=station_list$chillR_code[4],
-                     time_interval=c(1990,2020))
+                     time_interval=c(1991,2020))
 
 weather[[1]]$weather[1:20,]
 
@@ -18,8 +18,12 @@ cleaned_weather[[1]]$weather[1:20,]
 
 dir.create("data")
 write.csv(station_list,"data/station_list.csv",row.names=FALSE)
-write.csv(weather,"data/Bonn_weather.csv",row.names=FALSE)
-write.csv(cleaned_weather$weather,"data/Bonn_chillR_weather.csv",row.names=FALSE)
+write.csv(weather[[1]]$weather,"data/Bonn_weather.csv",row.names=FALSE)
+write.csv(cleaned_weather[[1]]$weather,"data/Bonn_chillR_weather.csv",row.names=FALSE)
+
+clean<-read.csv("data/Bonn_chillR_weather.csv")
+clean<-read_tab("data/Bonn_chillR_weather.csv")
+
  
 ### handle DWD
 
