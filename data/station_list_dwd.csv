@@ -1,0 +1,26 @@
+"Station_name","Region","Station_ID","Elevation","Latitude","Longitude","Begin","End","Distance"
+"Bonn-Friesdorf","Nordrhein-Westfalen","00599",62,50.7055,7.1467,"19321001","19990301",4.28
+"Königswinter-Heiderhof","Nordrhein-Westfalen","00603",147,50.7293,7.204,"19860801","20211231",7.34
+"Köln-Bonn","Nordrhein-Westfalen","02667",92,50.8646,7.1575,"19570701","20211231",15.51
+"NeuenahrBad-Ahrweiler","Rheinland-Pfalz","03490",111,50.5346,7.0853,"19480101","20211231",21.76
+"Weilerswist-Lommersum","Nordrhein-Westfalen","01327",147,50.7119,6.7905,"19370101","20211231",21.95
+"Neunkirchen-Seelscheid-Meisenbach","Nordrhein-Westfalen","03541",185,50.8956,7.3081,"19620801","19920229",23.55
+"Köln-Stammheim","Nordrhein-Westfalen","02968",43,50.9894,6.9777,"19450101","20211231",30.11
+"Hümmerich","Rheinland-Pfalz","02362",328,50.5651,7.4843,"19821001","20211231",32.79
+"Nörvenich (Flugplatz)","Nordrhein-Westfalen","03623",110,50.8294,6.6601,"19690101","20211231",32.94
+"Engelskirchen","Nordrhein-Westfalen","01238",144,50.9884,7.425,"19510101","19960930",36.74
+"Nümbrecht auf dem Lindchen","Nordrhein-Westfalen","03657",341,50.9081,7.5543,"19830601","20150831",37.65
+"Neuwied","Rheinland-Pfalz","05920",91,50.4485,7.4275,"19500101","19970731",38.97
+"Hilgenroth","Rheinland-Pfalz","02211",295,50.737,7.6525,"19370101","20211231",39.01
+"Andernach","Rheinland-Pfalz","00161",75,50.4237,7.4202,"19801201","20211231",40.93
+"Mendig","Rheinland-Pfalz","03246",181,50.3667,7.3167,"19841101","20070614",43.23
+"Elsdorf/Erftkreis","Nordrhein-Westfalen","01201",85,50.9281,6.5646,"19470701","20001231",43.69
+"Nürburg","Rheinland-Pfalz","03659",627,50.3391,6.9501,"19470101","19950327",44.76
+"Solingen-Hohenscheid","Nordrhein-Westfalen","04741",152,51.14,7.093,"19360101","20021231",45.61
+"Mayen","Rheinland-Pfalz","03212",230,50.3249,7.23,"19610101","20021231",46
+"Kall-Sistig","Nordrhein-Westfalen","02497",505,50.5014,6.5264,"19470101","20211231",47.9
+"Bendorf","Rheinland-Pfalz","00348",127,50.4135,7.5886,"19891214","20110901",49.37
+"Jülich (Forsch.-Anlage)","Nordrhein-Westfalen","02474",91,50.9104,6.4093,"19760101","20081231",52.65
+"Wuppertal-Buchenhofen","Nordrhein-Westfalen","05717",134,51.2256,7.1052,"19370101","20211231",55.14
+"Koblenz-Horchheim","Rheinland-Pfalz","02657",85,50.3369,7.5992,"19510101","20080131",56.26
+"Meinerzhagen (A)","Nordrhein-Westfalen","03228",506,51.0976,7.667,"19790801","19970331",57.12
