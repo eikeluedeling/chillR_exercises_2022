@@ -33,13 +33,14 @@ station_list_dwd<-handle_dwd(action="list_stations",
 head(station_list_dwd)
 weather_dwd<-handle_dwd(action="download_weather",
                      location=station_list_dwd$Station_ID[2],
-                     time_interval=c(19900101,20201231))
+                     time_interval=c(19900101,20211231))
 head(weather_dwd$`Königswinter-Heiderhof`$weather)
 cleaned_weather_dwd<-handle_dwd(weather_dwd)
 
 cleaned_weather_dwd$`Königswinter-Heiderhof`
+head(cleaned_weather_dwd$`Königswinter-Heiderhof`)
 
 
 write.csv(station_list_dwd,"data/station_list_dwd.csv",row.names=FALSE)
-write.csv(weather_dwd,"data/KoeWiHeiderhof_weather.csv",row.names=FALSE)
-write.csv(cleaned_weather_dwd$`Königswinter-Heiderhof`,"data/KoeWiHeiderhof_chillR_weather.csv",row.names=FALSE)
+write.csv(weather_dwd[[1]]$weather,"data/KoeWiHeiderhof_weather.csv",row.names=FALSE)
+write.csv(cleaned_weather_dwd[[1]],"data/KoeWiHeiderhof_chillR_weather.csv",row.names=FALSE)
