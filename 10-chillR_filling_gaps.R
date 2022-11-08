@@ -31,10 +31,9 @@ fixed_winter_days<-fix_weather(KA_weather_gap,
 fixed_all_days<-fix_weather(KA_weather_gap)
 
 
-kable(fixed_winter_days$QC, caption="Quality control summary produced by *fix_weather()*, with only winter days interpolated") %>%
+kable(fixed_winter_days$QC,
+      caption="Quality control summary produced by *fix_weather()*, with only winter days interpolated") %>%
   kable_styling("striped", position = "left", font_size = 10)
-
-
 
 kable(fixed_all_days$QC, caption="Quality control summary produced by *fix_weather()*, with all days interpolated") %>%
   kable_styling("striped", position = "left", font_size = 10)
