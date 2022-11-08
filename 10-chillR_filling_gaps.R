@@ -72,9 +72,11 @@ kable(Bonn_QC, caption="Quality control summary produced by *fix_weather()*") %>
   kable_styling("striped", position = "left", font_size = 10)
 
 
-## station_list<-handle_gsod(action="list_stations",location=c(7.10,50.73),time_interval=c(1990,2020))
+station_list<-handle_gsod(action="list_stations",
+                          location=c(7.10,50.73),
+                          time_interval=c(1990,2020))
 
-station_list<-read.csv("data/station_list.csv")
+# station_list<-read.csv("data/station_list.csv")
 
 kable(station_list, caption="List of GSOD weather stations close to Bonn") %>%
   kable_styling("striped", position = "left", font_size = 10)
@@ -107,14 +109,13 @@ for(i in 1:length(positions_in_station_list))
      positions_in_station_list[i]]
    }
 
-save_temperature_scenarios(patch_weather,"data/", "patch_weather")
+# save_temperature_scenarios(patch_weather,"data/", "patch_weather")
 
 patch_weather<-load_temperature_scenarios("data/", "patch_weather")
 
 
-patched<-patch_daily_temperatures(weather = Bonn,
+patched<-patch_daily_temps(weather = Bonn,
                                   patch_weather = patch_weather)
-
 
 kable(patched$statistics[[1]],
       caption=paste("Patch statistics for",
@@ -132,7 +133,7 @@ kable(patched$statistics[[3]],
                     names(patched$statistics)[3])) %>%
     kable_styling("striped", position = "left", font_size = 10)
 
-patched<-patch_daily_temperatures(weather = Bonn,
+patched<-patch_daily_temps(weather = Bonn,
                                   patch_weather = patch_weather,
                                   max_mean_bias = 1,
                                   max_stdev_bias = 2)
