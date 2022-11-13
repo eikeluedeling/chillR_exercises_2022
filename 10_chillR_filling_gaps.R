@@ -173,8 +173,12 @@ write.csv(Bonn_weather$weather,"data/Bonn_weather.csv")
 ## Filling gaps in hourly dataset
 
 
-Winters_hours_gaps[,"DATE"]<-ISOdate(Winters_hours_gaps$Year,Winters_hours_gaps$Month,Winters_hours_gaps$Day,Winters_hours_gaps$Hour)
-Winters_hours_gaps[,"interpolated"]<-interpolate_gaps(Winters_hours_gaps$Temp_gaps)$interp
+Winters_hours_gaps[,"DATE"]<-ISOdate(Winters_hours_gaps$Year,
+                                     Winters_hours_gaps$Month,
+                                     Winters_hours_gaps$Day,
+                                     Winters_hours_gaps$Hour)
+Winters_hours_gaps[,"interpolated"]<-
+  interpolate_gaps(Winters_hours_gaps$Temp_gaps)$interp
 
 ggplot(data=Winters_hours_gaps[50:300,],aes(DATE,Temp)) +
   geom_line(lwd=1.3) +
@@ -192,7 +196,8 @@ winters_daily<-handle_cimis(downloaded_winters)$weather
  
 write.csv(Winters_daily,"data/winters_daily.csv")
 
-winters_daily<-read.csv("data/winters_daily.csv")
+#winters_daily<-read.csv("data/winters_daily.csv")
+
 knitr::kable(winters_daily[1:5,])  %>%
   kable_styling("striped", position = "left",font_size = 10)
 
@@ -224,7 +229,7 @@ ggplot(data=inter[50:300,],aes(DATE,Temp_recorded)) +
 
 require(stats)
 y<-rnorm(100)
-IQ<-quantile(y)[4]-quantile(2)[2]
+IQ<-quantile(y)[4]-quantile(y)[2]
 
 inter<-interp$weather
 inter[,"DATE"]<-ISOdate(inter$Year,inter$Month,inter$Day,inter$Hour)
