@@ -6,7 +6,9 @@ require(kableExtra)
 ## Let's first make a temperature scenario with 100 synthetic years that represents
 ## the weather at Klein-Altendorf from 1998 to 2005.
 
-Temp<-temperature_generation(KA_weather,years=c(1998,2005), sim_years = c(2001,2100))
+Temp<-temperature_generation(KA_weather,
+                             years=c(1998,2005),
+                             sim_years = c(2001,2100))
 
 ## # Now we make a temperature scenario that raises all temperatures by 2°C
 
@@ -44,14 +46,14 @@ Temperature_scenarios[,"Date"]<-
 ggplot(data=Temperature_scenarios, aes(Date,Tmin)) +
   geom_smooth(aes(colour = factor(Year))) +
   facet_wrap(vars(Data_source)) +
-  theme_bw(base_size = 20) +
+  theme_bw(base_size = 12) +
   theme(legend.position = "none") +
   scale_x_date(date_labels = "%b")
 
 ggplot(data=Temperature_scenarios, aes(Date,Tmax)) +
   geom_smooth(aes(colour = factor(Year))) +
   facet_wrap(vars(Data_source)) +
-  theme_bw(base_size = 20) +
+  theme_bw(base_size = 12) +
   theme(legend.position = "none") +
   scale_x_date(date_labels = "%b")
 
@@ -159,10 +161,23 @@ ggplot(data=all_scenarios,aes(scenario,Chill_Portions,
   geom_violin() +
   ylab("Chill accumulation (Chill Portions)") +
   xlab("Scenario year") +
-  theme_bw(base_size=15) +
+  theme_bw(base_size=12) +
   ylim(c(0,90)) +
   geom_point(data=actual_chill,
-             aes(End_year,Chill_Portions,fill="blue"),
+             aes(End_year,Chill_Portions,fill="black"),
+             col="blue",show.legend = FALSE) +
+  scale_fill_discrete(name="Scenario",
+                      breaks = unique(all_scenarios$scenario)) 
+
+ggplot(data=all_scenarios,aes(scenario,GDH,
+                              fill=factor(scenario))) +
+  geom_violin() +
+  ylab("Heat accumulation (Growing Degree Hours)") +
+  xlab("Scenario year") +
+  theme_bw(base_size=12) +
+  ylim(c(0,7000)) +
+  geom_point(data=actual_chill,
+             aes(End_year,GDH,fill="black"),
              col="blue",show.legend = FALSE) +
   scale_fill_discrete(name="Scenario",
                       breaks = unique(all_scenarios$scenario)) 
@@ -191,13 +206,13 @@ ggplot(temperature_means,aes(Year, Tmin)) +
   geom_point() + 
   geom_line(data=temperature_means,aes(Year, runn_mean_Tmin),lwd=2,col="blue") + 
   geom_line(data=temperature_means,aes(Year, regression_Tmin),lwd=2,col="red") +
-  theme_bw(base_size=15) +
+  theme_bw(base_size=12) +
   ylab("Mean monthly minimum temperature (°C)")
 
 ggplot(temperature_means,aes(Year, Tmax)) + 
   geom_point() + 
   geom_line(data=temperature_means,aes(Year, runn_mean_Tmax),lwd=2,col="blue") + 
   geom_line(data=temperature_means,aes(Year, regression_Tmax),lwd=2,col="red") +
-  theme_bw(base_size=15) +
+  theme_bw(base_size=12) +
   ylab("Mean monthly maximum temperature (°C)")
 
