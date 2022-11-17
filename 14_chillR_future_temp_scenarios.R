@@ -12,30 +12,33 @@ getClimateWizardData(coordinates=c(longitude=10.61,latitude=34.93),
     scenario="rcp45", start_year=2020, end_year=2050,
     metric=c("CD18","R02"), GCMs=c("bcc-csm1-1","BNU-ESM"))
  
+getClimateWizardData(coordinates=c(longitude=10.61,latitude=34.93),
+                     scenario="rcp45", start_year=2020, end_year=2050,
+                     metric="monthly_min_max_temps", GCMs=c("bcc-csm1-1","BNU-ESM"))
 
  
 RCPs<-c("rcp45","rcp85")
 Times<-c(2050,2085)
  
-for(RCP in RCPs)
-   for(Time in Times)
-     {start_year <- Time-15
-      end_year <- Time+15
-      clim_scen <-getClimateWizardData(
-      c(longitude = 7.143,latitude = 50.866),
-      RCP,
-      start_year,
-      end_year,
-      temperature_generation_scenarios = TRUE,
-      baseline =c(1975, 2005),
-      metric = "monthly_min_max_temps",
-      GCMs = "all")
-    save_temperature_scenarios(clim_scen,
-                               "data/ClimateWizard",
-                               paste0("Bonn_futures_",Time,"_",RCP))}
+# for(RCP in RCPs)
+#   for(Time in Times)
+#     {start_year <- Time-15
+#      end_year <- Time+15
+#      clim_scen <-getClimateWizardData(
+#      c(longitude = 7.143,latitude = 50.866),
+#      RCP,
+#      start_year,
+#      end_year,
+#      temperature_generation_scenarios = TRUE,
+#      baseline =c(1975, 2005),
+#      metric = "monthly_min_max_temps",
+#      GCMs = "all")
+#    save_temperature_scenarios(clim_scen,
+#                               "data/ClimateWizard",
+#                               paste0("Bonn_futures_",Time,"_",RCP))}
 
 
-scenario_1990<-temperature_scenario_from_records(Bonn_temps[,3:8],1990)
+scenario_1990<-temperature_scenario_from_records(Bonn_temps,1990)
 scenario_1996<-temperature_scenario_from_records(Bonn_temps,1996)
 adjustment_scenario<-temperature_scenario_baseline_adjustment(scenario_1996,scenario_1990)
 
@@ -74,6 +77,9 @@ all_past_scenarios<-temperature_scenario_from_records(
   weather=Bonn_temps,
   year=c(1980,1990,2000,2010))
 
+# the following isn't actually a baseline adjustment. It only ensures that this becomes
+# a relative climate change scenario - not an absolute one.
+
 adjusted_scenarios<-temperature_scenario_baseline_adjustment(
   baseline=scenario_1996,
   temperature_scenario = all_past_scenarios)
@@ -96,7 +102,9 @@ frost_model<-function(x) step_model(x,data.frame(
   upper=c(0,1000),
   weight=c(1,0)))
 
-models<-list(Chill_CP=Dynamic_Model,Heat_GDH=GDH,Frost_H=frost_model)
+models<-list(Chill_CP=Dynamic_Model,
+             Heat_GDH=GDH,
+             Frost_H=frost_model)
 
 
 
