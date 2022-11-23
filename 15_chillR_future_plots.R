@@ -36,6 +36,11 @@ for(RCP in RCPs)
       add_to = chills)
   }
 
+plot_climate_scenarios(
+  climate_scenario_list=chills,
+  metric="Frost_H",
+  metric_label="Frost hours",
+  texcex=1.5)
 
 # We'll first process the past scenarios (element 1 of the chills list).
 # Within the data element, we have a list of multiple data.frames for
@@ -93,7 +98,7 @@ kable(future_data[1:5,])  %>%
 
 
 # Extract the model names
-#Models <- unique(future_data$GCM)
+Models <- unique(future_data$GCM)
   
 metric<-"Heat_GDH"
 axis_label<-"Heat (in GDH)"
@@ -104,7 +109,6 @@ rng<-range(past_observed[[metric]],
            past_simulated[[metric]],
            future_data[[metric]])  
 rng
-
 
 
 past_plot<-ggplot() +
@@ -165,7 +169,7 @@ future_2050<-future_2050 +
 
 
 future_2050<-future_2050 +
-  scale_y_continuous(limits = c(0, round(round(1.1*rng[2])))) +
+  scale_y_continuous(limits = c(0, round(1.1*rng[2]))) +
     geom_text_npc(aes(npcx = "center", npcy = "top", label = Year), size = 5)
 
 future_2050
@@ -219,7 +223,7 @@ for(y in c(2050,2085))
 
 future_plot_list
 
-
+library(patchwork)
 
 both_plots<-past_plot + future_plot_list
 
@@ -434,4 +438,7 @@ plot_scenarios_gg(past_observed=past_observed,
                   metric="Frost_H",
                   axis_label="Frost duration (in hours)")
 
+ggsave("plots/Frost_H.png", width = 20,
+       height = 10, units = "cm",
+       dpi = 600)
 
