@@ -13,11 +13,6 @@ library(gganimate)
 RCPs<-c("rcp45","rcp85")
 Times<-c(2050,2085)
 
-
-## library(chillR)
-## library(devtools)
-## library(dormancyR)
-
 hourly_models <- list(Chilling_units = chilling_units,
      Low_chill = low_chill_model,
      Modified_Utah = modified_utah_model,
@@ -63,9 +58,12 @@ daily_models_past_scenarios<-tempResponse_list_daily(
   Start_JDay = Start_JDay,
   End_JDay = End_JDay,
   models=daily_models)
+
 daily_models_past_scenarios<-lapply(
   daily_models_past_scenarios,
-  function(x) x[which(x$Perc_complete>90),])
+  function(x) x[which(x$Perc_complete>90),]
+  )
+
 hourly_models_past_scenarios<-tempResponse_daily_list(
   Temps,
   latitude=50.866,
@@ -74,11 +72,11 @@ hourly_models_past_scenarios<-tempResponse_daily_list(
   models=hourly_models,
   misstolerance = 10)
 
-past_scenarios<-daily_models_past_scenarios
+#past_scenarios<-daily_models_past_scenarios
 past_scenarios<-lapply(
-  names(past_scenarios),
+  names(daily_models_past_scenarios),
   function(x)
-    cbind(past_scenarios[[x]],
+    cbind(daily_models_past_scenarios[[x]],
           hourly_models_past_scenarios[[x]][,names(hourly_models)]))
 names(past_scenarios)<-names(daily_models_past_scenarios)
 
@@ -128,6 +126,7 @@ for(RCP in RCPs)
     daily_models_future_scenarios<-lapply(
       daily_models_future_scenarios,
       function(x) x[which(x$Perc_complete>90),])
+    
     hourly_models_future_scenarios<-
       tempResponse_daily_list(
         Temps,
@@ -253,7 +252,7 @@ p_future <-
 p_future
 
 
-
+# this is where we left off
 
 p_past<-
   ggplot(results[which(results$GCM=="none"),],
