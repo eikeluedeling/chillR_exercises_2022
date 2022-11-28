@@ -17,7 +17,7 @@ ggplot(Alex_first,aes(Pheno_year,JDay)) +
   geom_point() +
   ylab("First bloom date (day of the year)") +
   xlab ("Year") +
-  theme_bw(base_size=15)
+  theme_bw(base_size=12)
 
 library(Kendall)
 Kendall(x=Alex_first$Pheno_year,y=Alex_first$JDay)
@@ -32,7 +32,7 @@ ggplot(Alex_first,aes(Year,JDay)) +
   geom_smooth(method='lm', formula = y~x) +
   ylab("First bloom date (day of the year)") +
   xlab ("Year") +
-  theme_bw(base_size=15)
+  theme_bw(base_size=12)
 
 
 summary(lm(y ~ poly(x,25)))
@@ -42,7 +42,7 @@ ggplot(Alex_first,aes(Year,JDay)) +
   geom_smooth(method='lm', formula = y ~ poly(x,25)) +
   ylab("First bloom date (day of the year)") +
   xlab ("Year") +
-  theme_bw(base_size=15)
+  theme_bw(base_size=12)
 
 temperature<-read.csv("data/TMaxTMin1958-2019_patched.csv")
 
@@ -73,7 +73,7 @@ corr_temp_pheno<-function(start_JDay, # the start JDay of the period
   if(start_JDay>end_JDay) temps_JDay$Season[which(temps_JDay$JDay>=start_JDay)]<-
       temps_JDay$Year[which(temps_JDay$JDay>=start_JDay)]+1
   if(start_JDay>end_JDay) sub_temps<-subset(temps_JDay,JDay<=end_JDay|JDay>=start_JDay)
-    if(start_JDay<=end_JDay) sub_temps<-subset(temps_JDay,JDay<=end_JDay&JDay>=start_JDay)
+  if(start_JDay<=end_JDay) sub_temps<-subset(temps_JDay,JDay<=end_JDay&JDay>=start_JDay)
   mean_temps<-aggregate(sub_temps[,c("Tmin","Tmax")],by=list(sub_temps$Season),FUN=mean)
   mean_temps[,"Tmean"]<-(mean_temps$Tmin+mean_temps$Tmax)/2
   colnames(mean_temps)[1]<-c("Pheno_year")
@@ -117,5 +117,5 @@ ggplot(data=slopes, aes(x=start_JDay,y=length,fill=value)) +
   scale_fill_gradientn(colours=matlab.like(15)) +
   ylab("Interval duration (days)") + 
   xlab("Start date of temperature summary interval (Day of year)") +
-  theme_bw(base_size = 15)
+  theme_bw(base_size = 12)
 

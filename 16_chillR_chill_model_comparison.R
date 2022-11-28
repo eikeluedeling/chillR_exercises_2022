@@ -262,7 +262,7 @@ p_past<-
 
 p_past<-
   p_past +
-  theme_bw(base_size = 15) +
+  theme_bw(base_size = 12) +
   theme(axis.text = element_text(size=8))
 
 p_past<-
@@ -316,7 +316,7 @@ chill_change_plot<-
          aes(x=Year,y=SWC,col=factor(Metric,levels=metrics))) +
   geom_line(linewidth=1.3) +
   facet_wrap(~RCP,nrow=2) +
-  theme_bw(base_size=15) +
+  theme_bw(base_size=12) +
   labs(col = "Change in\nSafe Winter Chill\nsince 1975") +
   scale_color_discrete(labels=model_labels) +
   scale_y_continuous(labels = scales::percent) +
