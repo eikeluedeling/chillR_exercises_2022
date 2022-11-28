@@ -24,9 +24,9 @@ PLS_results<-PLS_pheno(KA_temps,Alex_first)
 kable(PLS_results$PLS_summary[1:5,])  %>%
   kable_styling("striped", position = "left",font_size = 8)
 
-
-## plot_PLS(PLS_results,PLS_results_path = "pictures/PLS_out")
-## 
+dir.create("pictures")
+plot_PLS(PLS_results,PLS_results_path = "pictures/PLS_out")
+ 
 
 
 library(ggplot2)

@@ -44,9 +44,9 @@ plscf<-PLS_chill_force(daily_chill_obj=daychill,
 kable(head(plscf$Chill_Portions$GDH$PLS_summary))  %>%
   kable_styling("striped", position = "left",font_size = 10)
 
-## 
-## plot_PLS(plscf, PLS_results_path= "PLS_outputs")
-## 
+ 
+plot_PLS(plscf, PLS_results_path= "pictures/PLS_outputs")
+ 
 
 plscf<-PLS_chill_force(daily_chill_obj=daychill,
                        bio_data_frame=Alex_first,
@@ -57,12 +57,12 @@ plscf<-PLS_chill_force(daily_chill_obj=daychill,
 
 
 
-## 
-## plot_PLS(plscf,
-##          PLS_results_path= "PLS_outputs",
-##          add_chill = c(-48,62),
-##          add_heat = c(-5,105.5))
-## 
+ 
+plot_PLS(plscf,
+          PLS_results_path= "pictures/PLS_outputs",
+          add_chill = c(-48,62),
+          add_heat = c(-5,105.5))
+ 
 
 
 PLS_gg<-plscf$Chill_Portions$GDH$PLS_summary
@@ -474,3 +474,4 @@ plot_PLS_chill_force(plscf,
                      heat_label="GDH",
                      chill_phase=c(0,0),
                      heat_phase=c(0,0))
+

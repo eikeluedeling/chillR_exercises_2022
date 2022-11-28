@@ -22,48 +22,48 @@ daily_CPs<-CPs[length(CPs)]/nrow(weather)
 daily_CPs
 
 
-## library(chillR)
-## 
-## latitude<-50.6
-## 
-## month_range<-c(10,11,12,1,2,3)
-## 
-## Tmins=c(-20:20)
-## Tmaxs=c(-15:30)
-## 
-## mins<-NA
-## maxs<-NA
-## CP<-NA
-## month<-NA
-## temp_model<-Dynamic_Model
-## 
-## for(mon in month_range)
-##     {days_month<-as.numeric(difftime( ISOdate(2002,mon+1,1),
-##                                            ISOdate(2002,mon,1) ))
-##     if(mon==12) days_month<-31
-##     weather<-make_all_day_table(data.frame(Year=c(2001,2002),
-##                                          Month=c(mon,mon),
-##                                          Day=c(1,days_month),Tmin=c(0,0),Tmax=c(0,0)))
-##     for(tmin in Tmins)
-##       for(tmax in Tmaxs)
-##         if(tmax>=tmin)
-##           {
-##           weather$Tmin<-tmin
-##           weather$Tmax<-tmax
-##           hourtemps<-stack_hourly_temps(weather,
-##                                         latitude=latitude)$hourtemps$Temp
-##           CP<-c(CP,do.call(Dynamic_Model,
-##                            list(hourtemps))[length(hourtemps)]/(length(hourtemps)/24))
-##           mins<-c(mins,tmin)
-##           maxs<-c(maxs,tmax)
-##           month<-c(month,mon)
-##         }
-##     }
-## results<-data.frame(Month=month,Tmin=mins,Tmax=maxs,CP)
-## results<-results[!is.na(results$Month),]
-## 
-## 
-## write.csv(results,"data/model_sensitivity_development.csv",row.names = FALSE)
+library(chillR)
+
+latitude<-50.6
+
+month_range<-c(10,11,12,1,2,3)
+
+Tmins=c(-20:20)
+Tmaxs=c(-15:30)
+
+mins<-NA
+maxs<-NA
+CP<-NA
+month<-NA
+temp_model<-Dynamic_Model
+
+for(mon in month_range)
+    {days_month<-as.numeric(difftime( ISOdate(2002,mon+1,1),
+                                           ISOdate(2002,mon,1) ))
+    if(mon==12) days_month<-31
+    weather<-make_all_day_table(data.frame(Year=c(2001,2002),
+                                         Month=c(mon,mon),
+                                         Day=c(1,days_month),Tmin=c(0,0),Tmax=c(0,0)))
+    for(tmin in Tmins)
+      for(tmax in Tmaxs)
+        if(tmax>=tmin)
+          {
+          weather$Tmin<-tmin
+          weather$Tmax<-tmax
+          hourtemps<-stack_hourly_temps(weather,
+                                        latitude=latitude)$hourtemps$Temp
+          CP<-c(CP,do.call(Dynamic_Model,
+                           list(hourtemps))[length(hourtemps)]/(length(hourtemps)/24))
+          mins<-c(mins,tmin)
+          maxs<-c(maxs,tmax)
+          month<-c(month,mon)
+        }
+    }
+results<-data.frame(Month=month,Tmin=mins,Tmax=maxs,CP)
+results<-results[!is.na(results$Month),]
+
+
+write.csv(results,"data/model_sensitivity_development.csv",row.names = FALSE)
 
 results<-read.csv("data/model_sensitivity_development.csv")
 month_range<-c(10,11,12,1,2,3)
@@ -176,6 +176,7 @@ Chill_model_sensitivity<-
   results<-cbind(data.frame(Month=month,Tmin=mins,Tmax=maxs),
                  as.data.frame(metrics))
   results<-results[!is.na(results$Month),]
+  results
 }
 
 
@@ -230,39 +231,39 @@ Chill_sensitivity_temps<-function(chill_model_sensitivity_table,
 }
   
 
-## 
-## Model_sensitivities_CKA<-
-##   Chill_model_sensitivity(latitude=50,
-##                           temp_models=list(Dynamic_Model=Dynamic_Model,
-##                                            GDH=GDH),
-##                           month_range=c(10:12,1:5))
-## write.csv(Model_sensitivities_CKA,
-##           "data/Model_sensitivities_CKA.csv",row.names = FALSE)
-## 
-## Model_sensitivities_Davis<-
-##   Chill_model_sensitivity(latitude=38.5,
-##                           temp_models=list(Dynamic_Model=Dynamic_Model,
-##                                            GDH=GDH),
-##                           month_range=c(10:12,1:5))
-## write.csv(Model_sensitivities_Davis,
-##           "data/Model_sensitivities_Davis.csv",row.names = FALSE)
-## 
-## Model_sensitivities_Beijing<-
-##   Chill_model_sensitivity(latitude=39.9,
-##                           temp_models=list(Dynamic_Model=Dynamic_Model,
-##                                            GDH=GDH),
-##                           month_range=c(10:12,1:5))
-## write.csv(Model_sensitivities_Beijing,
-##           "data/Model_sensitivities_Beijing.csv",row.names = FALSE)
-## 
-## Model_sensitivities_Sfax<-
-##   Chill_model_sensitivity(latitude=35,
-##                           temp_models=list(Dynamic_Model=Dynamic_Model,
-##                                            GDH=GDH),
-##                           month_range=c(10:12,1:5))
-## write.csv(Model_sensitivities_Sfax,
-##           "data/Model_sensitivities_Sfax.csv",row.names = FALSE)
-## 
+
+Model_sensitivities_CKA<-
+  Chill_model_sensitivity(latitude=50,
+                          temp_models=list(Dynamic_Model=Dynamic_Model,
+                                           GDH=GDH),
+                          month_range=c(10:12,1:5))
+write.csv(Model_sensitivities_CKA,
+          "data/Model_sensitivities_CKA.csv",row.names = FALSE)
+
+Model_sensitivities_Davis<-
+  Chill_model_sensitivity(latitude=38.5,
+                          temp_models=list(Dynamic_Model=Dynamic_Model,
+                                           GDH=GDH),
+                          month_range=c(10:12,1:5))
+write.csv(Model_sensitivities_Davis,
+          "data/Model_sensitivities_Davis.csv",row.names = FALSE)
+
+Model_sensitivities_Beijing<-
+  Chill_model_sensitivity(latitude=39.9,
+                          temp_models=list(Dynamic_Model=Dynamic_Model,
+                                           GDH=GDH),
+                          month_range=c(10:12,1:5))
+write.csv(Model_sensitivities_Beijing,
+          "data/Model_sensitivities_Beijing.csv",row.names = FALSE)
+
+Model_sensitivities_Sfax<-
+  Chill_model_sensitivity(latitude=35,
+                          temp_models=list(Dynamic_Model=Dynamic_Model,
+                                           GDH=GDH),
+                          month_range=c(10:12,1:5))
+write.csv(Model_sensitivities_Sfax,
+          "data/Model_sensitivities_Sfax.csv",row.names = FALSE)
+
 
 Model_sensitivities_CKA<-read.csv("data/Model_sensitivities_CKA.csv")
 Model_sensitivities_Davis<-read.csv("data/Model_sensitivities_Davis.csv")

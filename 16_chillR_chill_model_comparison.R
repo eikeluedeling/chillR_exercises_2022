@@ -314,7 +314,7 @@ RCP_Time_series<-rbind(hist_results[,c("Metric","RCP","Year","SWC")],
 chill_change_plot<-
   ggplot(data=RCP_Time_series,
          aes(x=Year,y=SWC,col=factor(Metric,levels=metrics))) +
-  geom_line(lwd=1.3) +
+  geom_line(linewidth=1.3) +
   facet_wrap(~RCP,nrow=2) +
   theme_bw(base_size=15) +
   labs(col = "Change in\nSafe Winter Chill\nsince 1975") +
