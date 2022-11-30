@@ -86,8 +86,8 @@ temps<-stack_hourly_temps(
   ,latitude=39.9)
 hh<-hist(temps$hourtemps$Temp,breaks=c(-30:30), plot=FALSE)
 hh_df_2<-data.frame(T=hh$mids,
-                    variable="Beijing,
-                    China",value=hh$counts/max(hh$counts))
+                    variable="Beijing, China",
+                    value=hh$counts/max(hh$counts))
 hh_df_2$value[which(hh_df_2$value==0)]<-NA
 
 Davis_temps_JD<-make_JDay(read_tab("data/Davis_weather.csv"))
