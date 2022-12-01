@@ -43,12 +43,12 @@ PLS_gg[,"VIP_importance"]<-PLS_gg$VIP>=0.8
 PLS_gg[,"VIP_Coeff"]<-factor(sign(PLS_gg$Coef)*PLS_gg$VIP_importance)
 
 VIP_plot<- ggplot(PLS_gg,aes(x=Date,y=VIP)) +
-  geom_bar(stat='identity',aes(fill=VIP>0.8))
+  geom_bar(stat='identity',aes(fill=VIP_importance))
 VIP_plot <- VIP_plot +
   scale_fill_manual(name="VIP", 
                     labels = c("<0.8", ">0.8"), 
                     values = c("FALSE"="grey", "TRUE"="blue")) +
-  theme_bw(base_size=15) +
+  theme_bw(base_size=12) +
   theme(axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
         axis.title.x = element_blank() )
@@ -60,7 +60,7 @@ coeff_plot<- ggplot(PLS_gg,aes(x=Date,y=Coef)) +
   scale_fill_manual(name="Effect direction", 
                     labels = c("Advancing", "Unimportant","Delaying"), 
                     values = c("-1"="red", "0"="grey","1"="dark green")) +
-  theme_bw(base_size=15) +
+  theme_bw(base_size=12) +
   ylab("PLS coefficient") +
   theme(axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
@@ -78,7 +78,7 @@ temp_plot<- ggplot(PLS_gg) +
                   ymax=Tmean+Tstdev*(VIP_Coeff==1)),
               fill="dark green") +
   geom_line(aes(x=Date,y=Tmean)) +
-  theme_bw(base_size=15) +
+  theme_bw(base_size=12) +
   ylab(expression(paste(T[mean]," (°C)")))
 
 temp_plot
@@ -117,7 +117,7 @@ ggplot_PLS<-function(PLS_results)
   scale_fill_manual(name="VIP", 
                     labels = c("<0.8", ">0.8"), 
                     values = c("FALSE"="grey", "TRUE"="blue")) +
-  theme_bw(base_size=15) +
+  theme_bw(base_size=12) +
   theme(axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
         axis.title.x = element_blank() )
@@ -127,7 +127,7 @@ ggplot_PLS<-function(PLS_results)
   scale_fill_manual(name="Effect direction", 
                     labels = c("Advancing", "Unimportant","Delaying"), 
                     values = c("-1"="red", "0"="grey","1"="dark green")) +
-  theme_bw(base_size=15) +
+  theme_bw(base_size=12) +
   ylab("PLS coefficient") +
   theme(axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
@@ -143,7 +143,7 @@ ggplot_PLS<-function(PLS_results)
                     ymax=Tmean+Tstdev*(VIP_Coeff==1)),
                 fill="dark green") +
     geom_line(aes(x=Date,y=Tmean)) +
-    theme_bw(base_size=15) +
+    theme_bw(base_size=12) +
     ylab(expression(paste(T[mean]," (°C)")))
 
   library(patchwork)
