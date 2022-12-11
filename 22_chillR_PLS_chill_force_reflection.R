@@ -1,4 +1,6 @@
 library(chillR)
+library(dplyr)
+library(lubridate)
 
 mon<-1 # Month
 ndays<-31 # Number of days per month
@@ -7,22 +9,27 @@ tmax<-8
 latitude<-50
 
 
-weather<-make_all_day_table(data.frame(Year=c(2001,2002),
-                                         Month=c(mon,mon),
-                                         Day=c(1,ndays),Tmin=c(0,0),Tmax=c(0,0)))
+hourly_temps<-make_all_day_table(
+  data.frame(Year=c(2001,2002),
+             Month=c(mon,mon),
+             Day=c(1,ndays),
+             Tmin=c(0,0),
+             Tmax=c(0,0))) %>%
+  mutate(Tmin=tmin,Tmax=tmax) %>% 
+  stack_hourly_temps(latitude=latitude)
 
-weather$Tmin<-tmin
-weather$Tmax<-tmax
-
-hourly_temps<-stack_hourly_temps(weather,latitude=latitude)
+# weather$Tmin<-tmin
+# weather$Tmax<-tmax
+# hourly_temps<-stack_hourly_temps(weather,latitude=latitude)
 
 CPs<-Dynamic_Model(hourly_temps$hourtemps$Temp)
-daily_CPs<-CPs[length(CPs)]/nrow(weather)
+daily_CPs<-tail(CPs,1)/(length(CPs)/24)
 
 daily_CPs
 
 
-library(chillR)
+library(lubridate) # to get convenient date functionality
+library(purrr) # to get the pluck function
 
 latitude<-50.6
 
@@ -31,53 +38,48 @@ month_range<-c(10,11,12,1,2,3)
 Tmins=c(-20:20)
 Tmaxs=c(-15:30)
 
-mins<-NA
-maxs<-NA
-CP<-NA
-month<-NA
 temp_model<-Dynamic_Model
 
+first_run<-TRUE
 for(mon in month_range)
-    {days_month<-as.numeric(difftime( ISOdate(2002,mon+1,1),
-                                           ISOdate(2002,mon,1) ))
-    if(mon==12) days_month<-31
-    weather<-make_all_day_table(data.frame(Year=c(2001,2002),
-                                         Month=c(mon,mon),
-                                         Day=c(1,days_month),Tmin=c(0,0),Tmax=c(0,0)))
+    {weather<-make_all_day_table(
+      data.frame(Year=c(2001,2002),
+                 Month=c(mon,mon),
+                 Day=c(1,days_in_month(mon)),
+                 Tmin=c(0,0),
+                 Tmax=c(0,0)))
     for(tmin in Tmins)
       for(tmax in Tmaxs)
         if(tmax>=tmin)
           {
-          weather$Tmin<-tmin
-          weather$Tmax<-tmax
-          hourtemps<-stack_hourly_temps(weather,
-                                        latitude=latitude)$hourtemps$Temp
-          CP<-c(CP,do.call(Dynamic_Model,
-                           list(hourtemps))[length(hourtemps)]/(length(hourtemps)/24))
-          mins<-c(mins,tmin)
-          maxs<-c(maxs,tmax)
-          month<-c(month,mon)
+          hourtemps <- weather %>%
+            mutate(Tmin=tmin, Tmax=tmax) %>% 
+            stack_hourly_temps(latitude=latitude) %>% 
+            pluck(1,"Temp")
+          day_CP<-do.call(Dynamic_Model,
+                          list(hourtemps)) %>% 
+            tail(1)/(length(hourtemps)/24)
+          
+          if(first_run)
+            {CP<-day_CP
+            mins<-tmin
+            maxs<-tmax
+            month<-mon
+            first_run<-FALSE} else
+              {CP<-append(CP,day_CP)
+              mins<-append(mins,tmin)
+              maxs<-append(maxs,tmax)
+              month<-append(month,mon)}
         }
     }
-results<-data.frame(Month=month,Tmin=mins,Tmax=maxs,CP)
-results<-results[!is.na(results$Month),]
 
+results<-data.frame(Month=month,Tmin=mins,Tmax=maxs,CP)
 
 write.csv(results,"data/model_sensitivity_development.csv",row.names = FALSE)
 
 results<-read.csv("data/model_sensitivity_development.csv")
-month_range<-c(10,11,12,1,2,3)
 
-library(kableExtra)
-kable(head(results)) %>%
-  kable_styling("striped", position = "left", font_size=10)
-latitude<-50.6
-
-month_range<-c(10,11,12,1,2,3)
-
-Tmins=c(-20:20)
-Tmaxs=c(-15:30)
-
+head(results)
 
 
 
@@ -87,12 +89,16 @@ library(colorRamps)
 results$Month_names<- factor(results$Month, levels=month_range,
                              labels=month.name[month_range])  
 
-DM_sensitivity<-ggplot(results,aes(x=Tmin,y=Tmax,fill=CP)) +
+DM_sensitivity<-ggplot(results,
+                       aes(x=Tmin,y=Tmax,fill=CP)) +
   geom_tile() +
-  scale_fill_gradientn(colours=alpha(matlab.like(15), alpha = .5),
+  scale_fill_gradientn(colours=alpha(matlab.like(15),
+                                     alpha = .5),
                        name="Chill/day (CP)") +
-  ylim(min(results$Tmax),max(results$Tmax)) +
-  ylim(min(results$Tmin),max(results$Tmin))
+  ylim(min(results$Tmax),
+       max(results$Tmax)) +
+  ylim(min(results$Tmin),
+       max(results$Tmin))
 
 DM_sensitivity
 
@@ -103,9 +109,8 @@ DM_sensitivity <- DM_sensitivity +
 
 DM_sensitivity
 
-temperatures<-read_tab("data/TMaxTMin1958-2019_patched.csv")
-
-temperatures<-temperatures[which(temperatures$Month %in% month_range),]
+temperatures<-read_tab("data/TMaxTMin1958-2019_patched.csv") %>% 
+  filter(Month %in% month_range)
 
 temperatures[which(temperatures$Tmax<temperatures$Tmin),
              c("Tmax","Tmin")]<-NA
@@ -138,44 +143,46 @@ Chill_model_sensitivity<-
            Tmins=c(-10:20),
            Tmaxs=c(-5:30))
   {
-  mins<-NA
-  maxs<-NA
   metrics<-as.list(rep(NA,length(temp_models)))
   names(metrics)<-names(temp_models)
-  month<-NA
- 
-  for(mon in month_range)
-    {
-    days_month<-as.numeric(difftime( ISOdate(2002,mon+1,1),
-                                      ISOdate(2002,mon,1) ))
-    if(mon==12) days_month<-31
-    weather<-make_all_day_table(data.frame(Year=c(2001,2002),
-                                           Month=c(mon,mon),
-                                           Day=c(1,days_month),
-                                           Tmin=c(0,0),Tmax=c(0,0)))
 
-    
-    for(tmin in Tmins)
-      for(tmax in Tmaxs)
-        if(tmax>=tmin)
-          {
-          weather$Tmin<-tmin
-          weather$Tmax<-tmax
-          hourtemps<-stack_hourly_temps(weather,
-                                        latitude=latitude)$hourtemps$Temp
-          for(tm in 1:length(temp_models))
-           metrics[[tm]]<-c(metrics[[tm]],
-                            do.call(temp_models[[tm]],
-                                    list(hourtemps))[length(hourtemps)]/
-                              (length(hourtemps)/24))
-          mins<-c(mins,tmin)
-          maxs<-c(maxs,tmax)
-          month<-c(month,mon)
-        }
-    }
+  first_run<-TRUE
+  for(mon in month_range)
+  {weather<-make_all_day_table(
+    data.frame(Year=c(2001,2002),
+               Month=c(mon,mon),
+               Day=c(1,days_in_month(mon)),
+               Tmin=c(0,0),
+               Tmax=c(0,0)))
+  for(tmin in Tmins)
+    for(tmax in Tmaxs)
+      if(tmax>=tmin)
+      {
+        hourtemps <- weather %>%
+          mutate(Tmin=tmin, Tmax=tmax) %>% 
+          stack_hourly_temps(latitude=latitude) %>% 
+          pluck(1,"Temp")         
+          
+           metric <- lapply(temp_models,
+                           function(x) do.call(x,list(hourtemps)) %>% 
+                             tail(1)/(length(hourtemps)/24))
+                 
+          if(first_run)
+            {for(tm in 1:length(temp_models))
+              metrics[[tm]]<-metric[[tm]]
+            mins<-tmin
+            maxs<-tmax
+            month<-mon
+            first_run<-FALSE} else
+              {for(tm in 1:length(temp_models))
+                metrics[[tm]]<-append(metrics[[tm]],metric[[tm]])
+              mins<-append(mins,tmin)
+              maxs<-append(maxs,tmax)
+              month<-append(month,mon)}
+      }
+  }
   results<-cbind(data.frame(Month=month,Tmin=mins,Tmax=maxs),
                  as.data.frame(metrics))
-  results<-results[!is.na(results$Month),]
   results
 }
 
@@ -191,29 +198,29 @@ Chill_sensitivity_temps<-function(chill_model_sensitivity_table,
   library(ggplot2)
   library(colorRamps)
 
-  cmst<-chill_model_sensitivity_table
-  cmst<-cmst[which(cmst$Month %in% month_range),]
-  cmst$Month_names<- factor(cmst$Month, levels=month_range,
-                            labels=month.name[month_range])  
+  cmst<-filter(chill_model_sensitivity_table,Month %in% month_range) %>% 
+    mutate(Month_names = factor(Month,
+                                levels=month_range,
+                                labels=month.name[month_range]))
   
+ 
   DM_sensitivity<-
     ggplot(cmst,
-           aes_string(x="Tmin",y="Tmax",fill=temp_model)) +
+           aes(x=Tmin,y=Tmax,fill=.data[[temp_model]])) +
     geom_tile() +
     scale_fill_gradientn(colours=alpha(matlab.like(15), alpha = .5),
                          name=legend_label) +
-    xlim(Tmins[1],Tmins[length(Tmins)]) +
-    ylim(Tmaxs[1],Tmaxs[length(Tmaxs)])
+    coord_cartesian(xlim=range(Tmins),
+                    ylim=range(Tmaxs))
   
-  temperatures<-
-    temperatures[which(temperatures$Month %in% month_range),]
-  temperatures[which(temperatures$Tmax<temperatures$Tmin),
-               c("Tmax","Tmin")]<-NA
-  temperatures$Month_names <-
-    factor(temperatures$Month,
-           levels=month_range,
-           labels=month.name[month_range])  
+  temperatures<-temperatures %>% 
+    filter(Month %in% month_range) %>% 
+    filter(Tmax>=Tmin) %>% 
+    mutate(Month_names=factor(Month,
+                              levels=month_range,
+                              labels=month.name[month_range])  )
   
+
   DM_sensitivity +
     geom_point(data=temperatures,
                aes(x=Tmin,y=Tmax,fill=NULL,color="Temperature"),
@@ -226,7 +233,7 @@ Chill_sensitivity_temps<-function(chill_model_sensitivity_table,
            color = guide_legend(order = 2)) +
     ylab("Tmax (°C)") +
     xlab("Tmin (°C)") + 
-    theme_bw(base_size=15)
+    theme_bw(base_size=12)
 
 }
   

@@ -126,7 +126,7 @@ plscf<-PLS_chill_force(daily_chill_obj=daychill,
                        heat_models = "GDH",
                        runn_means = 11)
 
-
+plot_PLS(plscf, PLS_results_path= "plots/PLS_outputs_11_day")
 ```
 
 ![Plot of results from the PLS_chill_force procedures, with an 11-day running mean applied to chill and heat inputs, as plotted with `chillR`'s standard plotting function](pictures/plscf_11_days_Chill_Portions_GDH.png)
@@ -150,7 +150,7 @@ My call on the present dataset would be a chilling period between 13^th^ Novembe
 ```{r, eval=FALSE}
 
 plot_PLS(plscf,
-         PLS_results_path= "plots/PLS_outputs",
+         PLS_results_path= "plots/PLS_outputs_CF_phases",
          add_chill = c(-48,62),
          add_heat = c(-5,105.5))
 
@@ -240,7 +240,7 @@ temp_plot<- temp_plot +
              labeller = labeller(Type = as_labeller(
                c(Chill="Chill (CP)",Heat="Heat (GDH)")))) +
   ggtitle("Daily chill and heat accumulation rates") +
-  theme_bw(base_size=15) + 
+  theme_bw(base_size=1,25) + 
   theme(strip.background = element_blank(),
         strip.placement = "outside",
         strip.text.y = element_text(size =12),

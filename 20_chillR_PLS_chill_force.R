@@ -4,25 +4,27 @@ library(kableExtra)
 temps<-read_tab("data/TMaxTMin1958-2019_patched.csv")
 temps_hourly<-stack_hourly_temps(temps,latitude=50.6)
 
-kable(head(temps))  %>%
-  kable_styling("striped", position = "left",font_size = 8)
+library(dplyr)
+
+temps_hourly<-read_tab("data/TMaxTMin1958-2019_patched.csv") |>
+  stack_hourly_temps(latitude=50.6)
+
+head(temps_hourly$hourtemps)
 
 daychill<-daily_chill(hourtemps=temps_hourly,
-            running_mean=1,
-            models = list(Chilling_Hours = Chilling_Hours, Utah_Chill_Units = Utah_Model,
-    Chill_Portions = Dynamic_Model, GDH = GDH)
-    )
+                      running_mean=1,
+                      models = list(Chilling_Hours = Chilling_Hours, Utah_Chill_Units = Utah_Model,
+                                    Chill_Portions = Dynamic_Model, GDH = GDH)
+)
 
-kable(head(daychill$daily_chill))  %>%
-  kable_styling("striped", position = "left",font_size = 8)
+head(daychill$daily_chill)
 
 dc<-make_daily_chill_plot2(daychill,metrics=c("Chill_Portions"),cumulative=FALSE,
-   startdate=300,enddate=30,focusyears=c(2008), metriclabels="Chill Portions")
-
+                           startdate=300,enddate=30,focusyears=c(2008), metriclabels="Chill Portions")
 
 
 dc<-make_daily_chill_plot2(daychill,metrics=c("Chill_Portions"),cumulative=TRUE,
-   startdate=300,enddate=30,focusyears=c(2008), metriclabels="Chill Portions")
+                           startdate=300,enddate=30,focusyears=c(2008), metriclabels="Chill Portions")
 
 
 Alex<-read_tab("data/Alexander_Lucas_bloom_1958_2019.csv")
@@ -41,12 +43,11 @@ plscf<-PLS_chill_force(daily_chill_obj=daychill,
                        chill_models = "Chill_Portions",
                        heat_models = "GDH")
 
-kable(head(plscf$Chill_Portions$GDH$PLS_summary))  %>%
-  kable_styling("striped", position = "left",font_size = 10)
+head(plscf$Chill_Portions$GDH$PLS_summary)
 
- 
-plot_PLS(plscf, PLS_results_path= "pictures/PLS_outputs")
- 
+
+plot_PLS(plscf, PLS_results_path= "plots/PLS_outputs") 
+
 
 plscf<-PLS_chill_force(daily_chill_obj=daychill,
                        bio_data_frame=Alex_first,
@@ -55,13 +56,14 @@ plscf<-PLS_chill_force(daily_chill_obj=daychill,
                        heat_models = "GDH",
                        runn_means = 11)
 
+plot_PLS(plscf, PLS_results_path= "plots/PLS_outputs_11_day")
 
 
  
 plot_PLS(plscf,
-          PLS_results_path= "pictures/PLS_outputs",
-          add_chill = c(-48,62),
-          add_heat = c(-5,105.5))
+         PLS_results_path= "plots/PLS_outputs_CF_phases",
+         add_chill = c(-48,62),
+         add_heat = c(-5,105.5))
  
 
 
@@ -135,13 +137,13 @@ temp_plot<- temp_plot +
              labeller = labeller(Type = as_labeller(
                c(Chill="Chill (CP)",Heat="Heat (GDH)")))) +
   ggtitle("Daily chill and heat accumulation rates") +
-  theme_bw(base_size=15) + 
+  theme_bw(base_size=1,25) + 
   theme(strip.background = element_blank(),
         strip.placement = "outside",
         strip.text.y = element_text(size =12),
         plot.title = element_text(hjust = 0.5),
         axis.title.y=element_blank()
-        )
+  )
 
 temp_plot
 
@@ -176,9 +178,9 @@ VIP_plot<- ggplot(PLS_gg,aes(x=Date,y=VIP)) +
 VIP_plot
 
 VIP_plot <- VIP_plot + facet_wrap(vars(Type), scales="free",
-             strip.position="left",
-             labeller = labeller(Type = as_labeller(
-               c(Chill="VIP for chill",Heat="VIP for heat")))) +
+                                  strip.position="left",
+                                  labeller = labeller(Type = as_labeller(
+                                    c(Chill="VIP for chill",Heat="VIP for heat")))) +
   scale_y_continuous(
     limits=c(0,max(plscf$Chill_Portions$GDH$PLS_summary$VIP))) +
   ggtitle("Variable Importance in the Projection (VIP) scores") +
@@ -188,8 +190,8 @@ VIP_plot <- VIP_plot + facet_wrap(vars(Type), scales="free",
         strip.text.y = element_text(size =12),
         plot.title = element_text(hjust = 0.5),
         axis.title.y=element_blank()
-        )
-  
+  )
+
 VIP_plot
 
 VIP_plot <- VIP_plot +
@@ -232,10 +234,10 @@ coeff_plot<- ggplot(PLS_gg,aes(x=Date,y=Coef)) +
 coeff_plot
 
 coeff_plot <- coeff_plot + facet_wrap(vars(Type), scales="free",
-             strip.position="left",
-             labeller = labeller(
-               Type = as_labeller(
-                 c(Chill="MC for chill",Heat="MC for heat")))) +
+                                      strip.position="left",
+                                      labeller = labeller(
+                                        Type = as_labeller(
+                                          c(Chill="MC for chill",Heat="MC for heat")))) +
   scale_y_continuous(
     limits=c(min(plscf$Chill_Portions$GDH$PLS_summary$Coef),
              max(plscf$Chill_Portions$GDH$PLS_summary$Coef))) +
@@ -246,13 +248,13 @@ coeff_plot <- coeff_plot + facet_wrap(vars(Type), scales="free",
         strip.text.y = element_text(size =12),
         plot.title = element_text(hjust = 0.5),
         axis.title.y=element_blank()
-        )
-  
+  )
+
 coeff_plot 
 
 coeff_plot <- coeff_plot +  scale_fill_manual(name="Effect direction", 
-                    labels = c("Advancing", "Unimportant","Delaying"), 
-                    values = c("-1"="red", "0"="grey","1"="dark green")) +
+                                              labels = c("Advancing", "Unimportant","Delaying"), 
+                                              values = c("-1"="red", "0"="grey","1"="dark green")) +
   ylab("PLS coefficient") +
   theme(axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
@@ -268,11 +270,11 @@ plot<- (VIP_plot +
           coeff_plot +
           temp_plot +
           plot_layout(ncol=1,
-            guides = "collect")
-        ) & theme(legend.position = "right",
-                  legend.text = element_text(size=8),
-                  legend.title = element_text(size=10),
-                  axis.title.x=element_blank())
+                      guides = "collect")
+) & theme(legend.position = "right",
+          legend.text = element_text(size=8),
+          legend.title = element_text(size=10),
+          axis.title.x=element_blank())
 
 plot
 
@@ -297,7 +299,7 @@ plot_PLS_chill_force<-function(plscf,
   chill_end_date<-ISOdate(2001,12,31)+chill_phase[2]*24*3600
   heat_start_date<-ISOdate(2001,12,31)+heat_phase[1]*24*3600
   heat_end_date<-ISOdate(2001,12,31)+heat_phase[2]*24*3600
-
+  
   
   temp_plot<- ggplot(PLS_gg) +
     annotate("rect",
@@ -342,7 +344,7 @@ plot_PLS_chill_force<-function(plscf,
           strip.text.y = element_text(size =12),
           plot.title = element_text(hjust = 0.5),
           axis.title.y=element_blank()
-          )
+    )
   
   VIP_plot<- ggplot(PLS_gg,aes(x=Date,y=VIP)) +
     annotate("rect",
@@ -376,7 +378,7 @@ plot_PLS_chill_force<-function(plscf,
           strip.text.y = element_text(size =12),
           plot.title = element_text(hjust = 0.5),
           axis.title.y=element_blank()
-          ) +
+    ) +
     scale_fill_manual(name="VIP", 
                       labels = c("<0.8", ">0.8"), 
                       values = c("FALSE"="grey", "TRUE"="blue")) +
@@ -418,7 +420,7 @@ plot_PLS_chill_force<-function(plscf,
           strip.text.y = element_text(size =12),
           plot.title = element_text(hjust = 0.5),
           axis.title.y=element_blank()
-          ) +
+    ) +
     scale_fill_manual(name="Effect direction", 
                       labels = c("Advancing", "Unimportant","Delaying"), 
                       values = c("-1"="red", "0"="grey","1"="dark green")) +
@@ -435,13 +437,13 @@ plot_PLS_chill_force<-function(plscf,
             temp_plot +
             plot_layout(ncol=1,
                         guides = "collect")
-          ) & theme(legend.position = "right",
-                    legend.text = element_text(size=8),
-                    legend.title = element_text(size=10),
-                    axis.title.x=element_blank())
-
-plot
-
+  ) & theme(legend.position = "right",
+            legend.text = element_text(size=8),
+            legend.title = element_text(size=10),
+            axis.title.x=element_blank())
+  
+  plot
+  
 }
 
 plot_PLS_chill_force(plscf)
