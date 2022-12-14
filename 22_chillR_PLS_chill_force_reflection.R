@@ -10,12 +10,13 @@ latitude<-50
 
 
 hourly_temps<-make_all_day_table(
-  data.frame(Year=c(2001,2002),
+  data.frame(Year=c(2001,2001),
              Month=c(mon,mon),
              Day=c(1,ndays),
              Tmin=c(0,0),
              Tmax=c(0,0))) %>%
-  mutate(Tmin=tmin,Tmax=tmax) %>% 
+  mutate(Tmin=tmin,
+         Tmax=tmax) %>% 
   stack_hourly_temps(latitude=latitude)
 
 # weather$Tmin<-tmin
@@ -43,7 +44,7 @@ temp_model<-Dynamic_Model
 first_run<-TRUE
 for(mon in month_range)
     {weather<-make_all_day_table(
-      data.frame(Year=c(2001,2002),
+      data.frame(Year=c(2001,2001),
                  Month=c(mon,mon),
                  Day=c(1,days_in_month(mon)),
                  Tmin=c(0,0),
@@ -53,12 +54,13 @@ for(mon in month_range)
         if(tmax>=tmin)
           {
           hourtemps <- weather %>%
-            mutate(Tmin=tmin, Tmax=tmax) %>% 
+            mutate(Tmin=tmin,
+                   Tmax=tmax) %>% 
             stack_hourly_temps(latitude=latitude) %>% 
-            pluck(1,"Temp")
-          day_CP<-do.call(Dynamic_Model,
+            pluck("hourtemps","Temp")
+          day_CP<-do.call(temp_model,
                           list(hourtemps)) %>% 
-            tail(1)/(length(hourtemps)/24)
+            tail(1)/days_in_month(mon)
           
           if(first_run)
             {CP<-day_CP
@@ -132,9 +134,9 @@ DM_sensitivity +
          color = guide_legend(order = 2)) +
   ylab("Tmax (°C)") +
   xlab("Tmin (°C)") + 
-  theme_bw(base_size=15) 
+  theme_bw(base_size=12) 
 
-
+# continue here next time
 
 Chill_model_sensitivity<-
   function(latitude,
@@ -149,7 +151,7 @@ Chill_model_sensitivity<-
   first_run<-TRUE
   for(mon in month_range)
   {weather<-make_all_day_table(
-    data.frame(Year=c(2001,2002),
+    data.frame(Year=c(2001,2001),
                Month=c(mon,mon),
                Day=c(1,days_in_month(mon)),
                Tmin=c(0,0),

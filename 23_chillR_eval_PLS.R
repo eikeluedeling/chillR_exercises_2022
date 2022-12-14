@@ -1,17 +1,17 @@
-library(kableExtra)
-
 library(chillR)
-Alex<-read_tab("data/Alexander_Lucas_bloom_1958_2019.csv")
-Alex_first<-Alex[,1:2]
-Alex_first[,"Year"]<-substr(Alex_first$First_bloom,1,4)
-Alex_first[,"Month"]<-substr(Alex_first$First_bloom,5,6)
-Alex_first[,"Day"]<-substr(Alex_first$First_bloom,7,8)
-Alex_first<-make_JDay(Alex_first)
+library(dplyr)
+library(purrr)
+Alex_first<-read_tab("data/Alexander_Lucas_bloom_1958_2019.csv")[,1:2] %>% 
+  mutate(Year=substr(First_bloom,1,4),
+         Month=substr(First_bloom,5,6),
+         Day=substr(First_bloom,7,8)) %>% 
+  make_JDay()
+
 Alex_first<-Alex_first[,c("Pheno_year","JDay")]
 colnames(Alex_first)<-c("Year","pheno")
 
-temps<-read_tab("data/TMaxTMin1958-2019_patched.csv")
-temps_hourly<-stack_hourly_temps(temps,latitude=50.6)
+temps_hourly<-read_tab("data/TMaxTMin1958-2019_patched.csv") %>%
+  stack_hourly_temps(latitude=50.6)
 
 daychill<-daily_chill(hourtemps=temps_hourly,
             running_mean=1,

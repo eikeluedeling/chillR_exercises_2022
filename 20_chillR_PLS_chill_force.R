@@ -177,14 +177,14 @@ VIP_plot<- ggplot(PLS_gg,aes(x=Date,y=VIP)) +
 
 VIP_plot
 
-VIP_plot <- VIP_plot + facet_wrap(vars(Type), scales="free",
+VIP_plot <- VIP_plot + facet_wrap(vars(Type), 
                                   strip.position="left",
                                   labeller = labeller(Type = as_labeller(
                                     c(Chill="VIP for chill",Heat="VIP for heat")))) +
   scale_y_continuous(
     limits=c(0,max(plscf$Chill_Portions$GDH$PLS_summary$VIP))) +
   ggtitle("Variable Importance in the Projection (VIP) scores") +
-  theme_bw(base_size=15) + 
+  theme_bw(base_size=12) + 
   theme(strip.background = element_blank(),
         strip.placement = "outside",
         strip.text.y = element_text(size =12),
@@ -233,7 +233,7 @@ coeff_plot<- ggplot(PLS_gg,aes(x=Date,y=Coef)) +
 
 coeff_plot
 
-coeff_plot <- coeff_plot + facet_wrap(vars(Type), scales="free",
+coeff_plot <- coeff_plot + facet_wrap(vars(Type),
                                       strip.position="left",
                                       labeller = labeller(
                                         Type = as_labeller(
@@ -242,7 +242,7 @@ coeff_plot <- coeff_plot + facet_wrap(vars(Type), scales="free",
     limits=c(min(plscf$Chill_Portions$GDH$PLS_summary$Coef),
              max(plscf$Chill_Portions$GDH$PLS_summary$Coef))) +
   ggtitle("Model coefficients (MC)") +
-  theme_bw(base_size=15) + 
+  theme_bw(base_size=12) + 
   theme(strip.background = element_blank(),
         strip.placement = "outside",
         strip.text.y = element_text(size =12),
@@ -477,3 +477,10 @@ plot_PLS_chill_force(plscf,
                      chill_phase=c(0,0),
                      heat_phase=c(0,0))
 
+plot_PLS_chill_force(plscf,
+                     chill_metric="Chill_Portions",
+                     heat_metric="GDH",
+                     chill_label="CP",
+                     heat_label="GDH",
+                     chill_phase=c(0,0),
+                     heat_phase=c(0,0))
