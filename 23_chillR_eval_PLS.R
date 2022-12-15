@@ -5,10 +5,12 @@ Alex_first<-read_tab("data/Alexander_Lucas_bloom_1958_2019.csv")[,1:2] %>%
   mutate(Year=substr(First_bloom,1,4),
          Month=substr(First_bloom,5,6),
          Day=substr(First_bloom,7,8)) %>% 
-  make_JDay()
+  make_JDay() %>%
+  select(Pheno_year,JDay) %>%
+  rename(Year=1,pheno=2)
 
-Alex_first<-Alex_first[,c("Pheno_year","JDay")]
-colnames(Alex_first)<-c("Year","pheno")
+
+temps<-read_tab("data/TMaxTMin1958-2019_patched.csv")
 
 temps_hourly<-read_tab("data/TMaxTMin1958-2019_patched.csv") %>%
   stack_hourly_temps(latitude=50.6)
@@ -39,18 +41,21 @@ plot_PLS_chill_force<-function(plscf,
                                chill_phase=c(-48,62),
                                heat_phase=c(-5,105.5))
 {
-  PLS_gg<-plscf[[chill_metric]][[heat_metric]]$PLS_summary
-  PLS_gg[,"Month"]<-trunc(PLS_gg$Date/100)
-  PLS_gg[,"Day"]<-PLS_gg$Date-PLS_gg$Month*100
-  PLS_gg[,"Date"]<-ISOdate(2002,PLS_gg$Month,PLS_gg$Day)
-  PLS_gg[which(PLS_gg$JDay<=0),"Date"]<-ISOdate(2001,PLS_gg$Month[which(PLS_gg$JDay<=0)],PLS_gg$Day[which(PLS_gg$JDay<=0)])
-  PLS_gg[,"VIP_importance"]<-PLS_gg$VIP>=0.8
-  PLS_gg[,"VIP_Coeff"]<-factor(sign(PLS_gg$Coef)*PLS_gg$VIP_importance)
+  PLS_gg<-plscf[[chill_metric]][[heat_metric]]$PLS_summary %>% 
+    mutate(Month=trunc(Date/100),
+           Day=Date-Month*100,
+           Date=ISOdate(2002,Month,Day)) 
+
   
-  chill_start_date<-ISOdate(2001,12,31)+chill_phase[1]*24*3600
-  chill_end_date<-ISOdate(2001,12,31)+chill_phase[2]*24*3600
-  heat_start_date<-ISOdate(2001,12,31)+heat_phase[1]*24*3600
-  heat_end_date<-ISOdate(2001,12,31)+heat_phase[2]*24*3600
+  PLS_gg[which(PLS_gg$JDay<=0),"Date"]<-ISOdate(2001,PLS_gg$Month[which(PLS_gg$JDay<=0)],PLS_gg$Day[which(PLS_gg$JDay<=0)])
+  PLS_gg<-PLS_gg %>%
+    mutate(VIP_importance=VIP>=0.8,
+           VIP_Coeff=factor(sign(Coef)*VIP_importance))
+
+  chill_start_date<-as.POSIXct(as.Date(chill_phase[1],origin="2001-12-31"))
+  chill_end_date<-as.POSIXct(as.Date(chill_phase[2],origin="2001-12-31"))
+  heat_start_date<-as.POSIXct(as.Date(heat_phase[1],origin="2001-12-31"))
+  heat_end_date<-as.POSIXct(as.Date(heat_phase[2],origin="2001-12-31"))
 
   
   temp_plot<- ggplot(PLS_gg) +
@@ -66,13 +71,14 @@ plot_PLS_chill_force<-function(plscf,
              ymin = -Inf,
              ymax = Inf,
              alpha = .1,fill = "red") +
+
     annotate("rect",
-             xmin = ISOdate(2001,12,31) + min(plscf$pheno$pheno,na.rm=TRUE)*24*3600,
-             xmax = ISOdate(2001,12,31) + max(plscf$pheno$pheno,na.rm=TRUE)*24*3600,
+             xmin = as.POSIXct(as.Date(min(plscf$pheno$pheno,na.rm=TRUE),origin="2001-12-31")),
+             xmax = as.POSIXct(as.Date(max(plscf$pheno$pheno,na.rm=TRUE),origin="2001-12-31")),
              ymin = -Inf,
              ymax = Inf,
              alpha = .1,fill = "black") +
-    geom_vline(xintercept = ISOdate(2001,12,31) + median(plscf$pheno$pheno,na.rm=TRUE)*24*3600, linetype = "dashed") +
+    geom_vline(xintercept = as.POSIXct(as.Date(median(plscf$pheno$pheno,na.rm=TRUE),origin="2001-12-31")), linetype = "dashed") +
     geom_ribbon(aes(x=Date,
                     ymin=MetricMean - MetricStdev ,
                     ymax=MetricMean + MetricStdev ),
@@ -243,6 +249,7 @@ ggplot(data=heat,aes(x=GDH)) +
 
 chill_requirement <- mean(chill$Chill_Portions)
 chill_req_error <- sd(chill$Chill_Portions)
+median(chill$Chill_Portions)
 
 heat_requirement <- mean(heat$GDH)
 heat_req_error <- sd(heat$GDH)
@@ -270,8 +277,9 @@ heat_req_error <- sd(heat$GDH)
 ## 
 
 mean_temp_period<-function(temps,start_JDay,end_JDay, end_season = end_JDay)
-{ temps_JDay<-make_JDay(temps)
-  temps_JDay[,"Season"]<-temps_JDay$Year
+{ temps_JDay<-make_JDay(temps) %>%
+  mutate(Season=Year)
+
   
   if(start_JDay>end_season)
     temps_JDay$Season[which(temps_JDay$JDay>=start_JDay)]<-
@@ -330,8 +338,7 @@ colnames(pheno)[1]<-"End_year"
 
 Tmeans_pheno<-merge(phase_Tmeans,pheno, by="End_year")
 
-kable(head(Tmeans_pheno)) %>%
-  kable_styling("striped", position = "left", font_size=10)
+Tmeans_pheno
 
 
 
@@ -364,10 +371,10 @@ ggplot(melted,
   geom_text_contour(stroke = 0.2) +
   ylab(expression(paste("Forcing phase ", T[mean]," (",degree,"C)"))) +
   xlab(expression(paste("Chilling phase ", T[mean]," (",degree,"C)")))  +
-  theme_bw(base_size=15)
+  theme_bw(base_size=12)
     
 
-
+# carry on here next time
 
 
 
@@ -471,13 +478,11 @@ pheno_trend_ggplot(temps=temps,
 
 
 Cali_temps<-read_tab("data/Davis_weather.csv")
-Walnut_pheno<-read_tab("data/Davis_Payne_leaf_out.csv")
-Walnut_pheno[,"Year"]<-as.numeric(substr(Walnut_pheno$Leaf.date,7,8))
-Walnut_pheno$Year<-Walnut_pheno$Year+(19+(Walnut_pheno$Year<25))*100
-Walnut_pheno[,"Month"]<-as.numeric(substr(Walnut_pheno$Leaf.date,4,5))
-Walnut_pheno[,"Day"]<-as.numeric(substr(Walnut_pheno$Leaf.date,1,2))
-Walnut_pheno<-make_JDay(Walnut_pheno)
-Walnut_pheno<-Walnut_pheno[,c("Year","JDay")]
+Walnut_pheno<-read_tab("data/Davis_Payne_leaf_out.csv") %>% 
+  mutate(Month=as.numeric(substr(Leaf.date,4,5)),
+         Day=as.numeric(substr(Leaf.date,1,2))) %>% 
+  make_JDay() %>% 
+  select(c("Year","JDay"))
 colnames(Walnut_pheno)<-c("Year","pheno")
 
 Cali_temps_hourly<-stack_hourly_temps(Cali_temps,latitude=38.5)
