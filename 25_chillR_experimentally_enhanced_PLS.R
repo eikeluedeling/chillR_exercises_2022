@@ -1,12 +1,21 @@
+library(chillR)
+library(lubridate)
 library(cowplot)
+library(magick)
+library(ggplot2)
+library(gganimate)
+library(colorRamps)
+library(patchwork)
+library(fields)
+library(reshape2)
+library(metR)
+
 ggdraw() + draw_image("pictures/PLS_exp_outside.jpg", -0.36, 0, 1, 1, 0.35) +
   draw_image("pictures/PLS_exp_unheated.jpg", 0.09, 0, 0.8, 1, 0.415) +
   draw_image("pictures/PLS_exp_heated.jpg", 0.34, 0, 1, 1, 0.35) +
   draw_plot_label(c("Outside", "Un-heated", "Heated"), x = c(0.125, 0.45, 0.8), y = 0.7, 
                   size = 11, hjust = 0, vjust = 0)
 
-library(ggplot2)
-library(gganimate)
 
 data <- read.csv("data/interactive_plot_PLS.csv", sep = ";")
 
@@ -30,42 +39,33 @@ ggplot(data, aes(Day, Final_condition_2, color = factor(Treatment, levels = c(1 
   transition_reveal(Day)
 
 
-library(chillR)
-library(lubridate)
+
 pheno_data<-read_tab("data/final_bio_data_S1_S2_apple.csv")
 weather_data<-read_tab("data/final_weather_data_S1_S2.csv")
 
-
-library(ggplot2)
-library(colorRamps)
-library(patchwork)
-library(fields)
-library(reshape2)
-library(metR)
-library(ggplot2)
-library(colorRamps)
 
 
 ggplot_PLS<-function(PLS_results)
 {
   library(ggplot2)
-  PLS_gg<-PLS_results$PLS_summary
-  PLS_gg[,"Month"]<-trunc(PLS_gg$Date/100)
-  PLS_gg[,"Day"]<-PLS_gg$Date-PLS_gg$Month*100
-  PLS_gg[,"Date"]<-ISOdate(2002,PLS_gg$Month,PLS_gg$Day)
+  PLS_gg<-PLS_results$PLS_summary %>% 
+    mutate(Month=trunc(Date/100),
+           Day=Date-Month*100,
+           Date=ISOdate(2002,Month,Day),
+           VIP_importance=VIP>=0.8,
+           VIP_Coeff=factor(sign(Coef)*VIP_importance))
   PLS_gg[which(PLS_gg$JDay<=0),"Date"]<-ISOdate(2001,PLS_gg$Month[which(PLS_gg$JDay<=0)],PLS_gg$Day[which(PLS_gg$JDay<=0)])
-  PLS_gg[,"VIP_importance"]<-PLS_gg$VIP>=0.8
-  PLS_gg[,"VIP_Coeff"]<-factor(sign(PLS_gg$Coef)*PLS_gg$VIP_importance)
+
   
   VIP_plot<- ggplot(PLS_gg,aes(x=Date,y=VIP)) +
-  geom_bar(stat='identity',aes(fill=VIP>0.8)) +
-  scale_fill_manual(name="VIP", 
-                    labels = c("<0.8", ">0.8"), 
-                    values = c("FALSE"="grey", "TRUE"="blue")) +
-  theme_bw(base_size=15) +
-  theme(axis.text.x = element_blank(),
-        axis.ticks.x = element_blank(),
-        axis.title.x = element_blank() )
+    geom_bar(stat='identity',aes(fill=VIP>0.8)) +
+    scale_fill_manual(name="VIP", 
+                      labels = c("<0.8", ">0.8"), 
+                      values = c("FALSE"="grey", "TRUE"="blue")) +
+    theme_bw(base_size=15) +
+    theme(axis.text.x = element_blank(),
+          axis.ticks.x = element_blank(),
+          axis.title.x = element_blank() )
   
   coeff_plot<- ggplot(PLS_gg,aes(x=Date,y=Coef)) +
   geom_bar(stat='identity',aes(fill=VIP_Coeff)) +
@@ -108,14 +108,14 @@ plot_PLS_chill_force<-function(plscf,
                                chill_phase=c(-48,62),
                                heat_phase=c(-5,105.5))
 {
-  PLS_gg<-plscf[[chill_metric]][[heat_metric]]$PLS_summary
-  PLS_gg[,"Month"]<-trunc(PLS_gg$Date/100)
-  PLS_gg[,"Day"]<-PLS_gg$Date-PLS_gg$Month*100
-  PLS_gg[,"Date"]<-ISOdate(2002,PLS_gg$Month,PLS_gg$Day)
+  PLS_gg<-plscf[[chill_metric]][[heat_metric]]$PLS_summary %>% 
+    mutate(Month=trunc(Date/100),
+           Day=Date-Month*100,
+           Date=ISOdate(2002,Month,Day),
+           VIP_importance=VIP>=0.8,
+           VIP_Coeff=factor(sign(Coef)*VIP_importance))
   PLS_gg[which(PLS_gg$JDay<=0),"Date"]<-ISOdate(2001,PLS_gg$Month[which(PLS_gg$JDay<=0)],PLS_gg$Day[which(PLS_gg$JDay<=0)])
-  PLS_gg[,"VIP_importance"]<-PLS_gg$VIP>=0.8
-  PLS_gg[,"VIP_Coeff"]<-factor(sign(PLS_gg$Coef)*PLS_gg$VIP_importance)
-  
+
   chill_start_date<-ISOdate(2001,12,31)+chill_phase[1]*24*3600
   chill_end_date<-ISOdate(2001,12,31)+chill_phase[2]*24*3600
   heat_start_date<-ISOdate(2001,12,31)+heat_phase[1]*24*3600

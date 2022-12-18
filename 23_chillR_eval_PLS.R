@@ -461,8 +461,8 @@ pheno_trend_ggplot<-function(temps,
     geom_point(data=Tmeans_pheno,
                aes(x=Tmean_chill,y=Tmean_heat,z=NULL),
                size=0.7)  +
-    ylab(expression(paste("Forcing phase ", T[mean]," (",degree,"C)"))) +
-    xlab(expression(paste("Chilling phase ", T[mean]," (",degree,"C)"))) +
+    ylab(expression("Forcing phase "*T[mean]*" ("*degree*C*")")) +
+    xlab(expression("Chilling phase "*T[mean]*" ("*degree*C*")")) +
     theme_bw(base_size=15)
 }
 
