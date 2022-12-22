@@ -75,6 +75,7 @@ all_months$month_name<-factor(all_months$Month,
                                        labels=month.name[c(6:12,1:5)])
 
 library(tidyverse)
+library(dplyr)
 
 # Calculate the hulls for each group
 hull_temps <- all_months %>%
