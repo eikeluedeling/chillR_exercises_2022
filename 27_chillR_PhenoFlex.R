@@ -34,7 +34,7 @@ chillplot<-ggplot(data=seasontemps[1:DBreakDay,],aes(x=Date,y=y)) +
   labs(title="Chilling") +
   annotate("text",label="Chill req. (yc)", 
             x=ISOdate(2008,10,01),
-            y=yc*1.1, col="blue",size=5)
+            y=yc*1.1, col="blue",lwd=5)
 
 heatplot<-ggplot(data=seasontemps[1:DBreakDay,],aes(x=Date,y=z)) +
   geom_line(col="red",lwd=1.5) +
@@ -47,7 +47,7 @@ heatplot<-ggplot(data=seasontemps[1:DBreakDay,],aes(x=Date,y=z)) +
   labs(title="Forcing")  +
   annotate("text",label="Heat req. (zc)", 
             x=ISOdate(2008,10,01),
-            y=zc*0.95, col="red",size=5)
+            y=zc*0.95, col="red",lwd=5)
 
 
 library(patchwork)
@@ -103,23 +103,23 @@ upper <- c(41, 200, 1.0, 30, 4000.0, 10000.0, 7000.0,       6.e13, 10, 40, 10, 5
 lower <- c(38, 180, 0.1, 0 , 3000.0,  9000.0, 6000.0,       5.e13,  0,  0,  0,  0.05)
 
 
-## 
-## SeasonList <- genSeasonList(hourtemps$hourtemps, mrange = c(8, 6), years=c(1959:2019))
-## 
-## Fit_res <- phenologyFitter(par.guess=par,
-##                            modelfn = PhenoFlex_GDHwrapper,
-##                            bloomJDays=Alex_first$pheno[which(Alex_first$Year>1958)],
-##                            SeasonList=SeasonList,
-##                            lower=lower,
-##                            upper=upper,
-##                            control=list(smooth=FALSE, verbose=FALSE, maxit=1000,
-##                                         nb.stop.improvement=5))
-## 
-## Alex_par<-Fit_res$par
-## 
-## write.csv(Alex_par,"data/PhenoFlex_parameters_Alexander_Lucas.csv")
-## 
-## 
+
+SeasonList <- genSeasonList(hourtemps$hourtemps, mrange = c(8, 6), years=c(1959:2019))
+
+Fit_res <- phenologyFitter(par.guess=par,
+                           modelfn = PhenoFlex_GDHwrapper,
+                           bloomJDays=Alex_first$pheno[which(Alex_first$Year>1958)],
+                           SeasonList=SeasonList,
+                           lower=lower,
+                           upper=upper,
+                           control=list(smooth=FALSE, verbose=FALSE, maxit=1000,
+                                        nb.stop.improvement=5))
+
+Alex_par<-Fit_res$par
+
+write.csv(Alex_par,"data/PhenoFlex_parameters_Alexander_Lucas.csv")
+
+
 
 Alex_par<-read_tab("data/PhenoFlex_parameters_Alexander_Lucas.csv")[,2]
 
