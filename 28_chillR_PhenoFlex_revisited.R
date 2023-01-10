@@ -1,14 +1,10 @@
-library(tufte)
-
-
 library(ggplot2)
 library(tidyr)
 require(reshape2)
 library(chillR)
 
 
-apply_const_temp <-
-  function(temp, A0, A1, E0, E1, Tf, slope, portions=1200, deg_celsius=TRUE)
+apply_const_temp <- function(temp, A0, A1, E0, E1, Tf, slope, portions=1200, deg_celsius=TRUE)
     {
   temp_vector <- rep(temp, times=portions)
   res <- chillR::DynModel_driver(temp=temp_vector,
@@ -72,63 +68,63 @@ ggplot(melted_response,aes(x=Temperature,y=value)) +
   theme(legend.position = "none")
 
 
-## latitude<-50.6
-## 
-## month_range<-c(10,11,12,1,2,3)
-## 
-## Tmins=c(-20:20)
-## Tmaxs=c(-15:30)
-## 
-## mins<-NA
-## maxs<-NA
-## chill_eff<-NA
-## heat_eff<-NA
-## month<-NA
-## 
-## simulation_par<-Alex_par
-## 
-## for(mon in month_range)
-##     {days_month<-as.numeric(difftime( ISOdate(2002,mon+1,1),
-##                                            ISOdate(2002,mon,1) ))
-##     if(mon==12) days_month<-31
-##     weather<-make_all_day_table(data.frame(Year=c(2001,2002),
-##                                          Month=c(mon,mon),
-##                                          Day=c(1,days_month),Tmin=c(0,0),Tmax=c(0,0)))
-##     for(tmin in Tmins)
-##       for(tmax in Tmaxs)
-##         if(tmax>=tmin)
-##           {
-##           weather$Tmin<-tmin
-##           weather$Tmax<-tmax
-##           hourtemps<-stack_hourly_temps(weather,
-##                                         latitude=latitude)$hourtemps$Temp
-##           chill_eff<-c(chill_eff,
-##                        PhenoFlex(temp=hourtemps,
-##                                  times=c(1: length(hourtemps)),
-##                                  A0=simulation_par[7],
-##                                  A1=simulation_par[8],
-##                                  E0=simulation_par[5],
-##                                  E1=simulation_par[6],
-##                                  Tf=simulation_par[9],
-##                                  slope=simulation_par[12],
-##                                  deg_celsius=TRUE,
-##                                  basic_output=FALSE)$y[length(hourtemps)]/
-##                                          (length(hourtemps)/24))
-##           heat_eff<-c(heat_eff,
-##                       cumsum(GDH_response(hourtemps,
-##                                           simulation_par))[length(hourtemps)]/
-##                                                  (length(hourtemps)/24))
-##           mins<-c(mins,tmin)
-##           maxs<-c(maxs,tmax)
-##           month<-c(month,mon)
-##         }
-##     }
-## results<-data.frame(Month=month,Tmin=mins,Tmax=maxs,Chill_eff=chill_eff,Heat_eff=heat_eff)
-## results<-results[!is.na(results$Month),]
-## 
-## 
-## write.csv(results,"data/model_sensitivity_PhenoFlex.csv")
-## 
+latitude<-50.6
+
+month_range<-c(10,11,12,1,2,3)
+
+Tmins=c(-20:20)
+Tmaxs=c(-15:30)
+
+mins<-NA
+maxs<-NA
+chill_eff<-NA
+heat_eff<-NA
+month<-NA
+
+simulation_par<-Alex_par
+
+for(mon in month_range)
+    {days_month<-as.numeric(difftime( ISOdate(2002,mon+1,1),
+                                           ISOdate(2002,mon,1) ))
+    if(mon==12) days_month<-31
+    weather<-make_all_day_table(data.frame(Year=c(2001,2002),
+                                         Month=c(mon,mon),
+                                         Day=c(1,days_month),Tmin=c(0,0),Tmax=c(0,0)))
+    for(tmin in Tmins)
+      for(tmax in Tmaxs)
+        if(tmax>=tmin)
+          {
+          weather$Tmin<-tmin
+          weather$Tmax<-tmax
+          hourtemps<-stack_hourly_temps(weather,
+                                        latitude=latitude)$hourtemps$Temp
+          chill_eff<-c(chill_eff,
+                       PhenoFlex(temp=hourtemps,
+                                 times=c(1: length(hourtemps)),
+                                 A0=simulation_par[7],
+                                 A1=simulation_par[8],
+                                 E0=simulation_par[5],
+                                 E1=simulation_par[6],
+                                 Tf=simulation_par[9],
+                                 slope=simulation_par[12],
+                                 deg_celsius=TRUE,
+                                 basic_output=FALSE)$y[length(hourtemps)]/
+                                         (length(hourtemps)/24))
+          heat_eff<-c(heat_eff,
+                      cumsum(GDH_response(hourtemps,
+                                          simulation_par))[length(hourtemps)]/
+                                                 (length(hourtemps)/24))
+          mins<-c(mins,tmin)
+          maxs<-c(maxs,tmax)
+          month<-c(month,mon)
+        }
+    }
+results<-data.frame(Month=month,Tmin=mins,Tmax=maxs,Chill_eff=chill_eff,Heat_eff=heat_eff)
+results<-results[!is.na(results$Month),]
+
+
+write.csv(results,"data/model_sensitivity_PhenoFlex.csv")
+
 
 
 Chill_sensitivity_temps<-function(chill_model_sensitivity_table,
@@ -147,7 +143,7 @@ Chill_sensitivity_temps<-function(chill_model_sensitivity_table,
   cmst$Month_names<- factor(cmst$Month, levels=month_range,
                             labels=month.name[month_range])  
   
-  DM_sensitivity<-ggplot(cmst,aes_string(x="Tmin",y="Tmax",fill=temp_model)) +
+  DM_sensitivity<-ggplot(cmst,aes(x=Tmin,y=Tmax,fill=.data[[temp_model]])) +
     geom_tile() +
     scale_fill_gradientn(colours=alpha(matlab.like(15), alpha = .5),
                          name=legend_label) +

@@ -27,7 +27,7 @@ Bloom<-seasontemps$Date[which(seasontemps$z>=zc)[1]]
 
 chillplot<-ggplot(data=seasontemps[1:DBreakDay,],aes(x=Date,y=y)) +
   geom_line(col="blue",lwd=1.5) +
-  theme_bw(base_size=20) +
+  theme_bw(base_size=15) +
   geom_hline(yintercept=yc,lty=2,col="blue",lwd=1.2) +
   geom_vline(xintercept=CR_full,lty=3,col="blue",lwd=1.2) +
   ylab("Chill accumulation (y)") +
@@ -38,7 +38,7 @@ chillplot<-ggplot(data=seasontemps[1:DBreakDay,],aes(x=Date,y=y)) +
 
 heatplot<-ggplot(data=seasontemps[1:DBreakDay,],aes(x=Date,y=z)) +
   geom_line(col="red",lwd=1.5) +
-  theme_bw(base_size=20) +
+  theme_bw(base_size=15) +
   scale_y_continuous(position = "right") +
   geom_hline(yintercept=zc,lty=2,col="red",lwd=1.2) +
   geom_vline(xintercept=CR_full,lty=3,col="blue",lwd=1.2) +
@@ -61,6 +61,7 @@ seasons<-1959:2019
 iSeason <- genSeason(hourtemps,
                      mrange = c(8, 6),
                      years=seasons)
+
 for (sea in 1:length(seasons))
 {season_data<-hourtemps$hourtemps[iSeason[[sea]],]
  res <- PhenoFlex(temp=season_data$Temp,
@@ -115,6 +116,7 @@ Fit_res <- phenologyFitter(par.guess=par,
                            control=list(smooth=FALSE, verbose=FALSE, maxit=1000,
                                         nb.stop.improvement=5))
 
+
 Alex_par<-Fit_res$par
 
 write.csv(Alex_par,"data/PhenoFlex_parameters_Alexander_Lucas.csv")
@@ -134,6 +136,7 @@ Alex_PhenoFlex_predictions$Error<-
   Alex_PhenoFlex_predictions$predicted-Alex_PhenoFlex_predictions$pheno
 
 RMSEP(Alex_PhenoFlex_predictions$predicted,Alex_PhenoFlex_predictions$pheno)
+RPIQ(Alex_PhenoFlex_predictions$predicted,Alex_PhenoFlex_predictions$pheno)
 mean(Alex_PhenoFlex_predictions$Error)
 mean(abs(Alex_PhenoFlex_predictions$Error))
 
