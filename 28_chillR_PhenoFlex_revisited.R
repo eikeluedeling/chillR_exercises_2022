@@ -83,13 +83,15 @@ month<-NA
 
 simulation_par<-Alex_par
 
+library(lubridate)
+
 for(mon in month_range)
-    {days_month<-as.numeric(difftime( ISOdate(2002,mon+1,1),
-                                           ISOdate(2002,mon,1) ))
-    if(mon==12) days_month<-31
-    weather<-make_all_day_table(data.frame(Year=c(2001,2002),
+    {
+    weather<-make_all_day_table(data.frame(Year=c(2001,2001),
                                          Month=c(mon,mon),
-                                         Day=c(1,days_month),Tmin=c(0,0),Tmax=c(0,0)))
+                                         Day=c(1,days_in_month(mon)),
+                                         Tmin=c(0,0),
+                                         Tmax=c(0,0)))
     for(tmin in Tmins)
       for(tmax in Tmaxs)
         if(tmax>=tmin)
@@ -99,7 +101,7 @@ for(mon in month_range)
           hourtemps<-stack_hourly_temps(weather,
                                         latitude=latitude)$hourtemps$Temp
           chill_eff<-c(chill_eff,
-                       PhenoFlex(temp=hourtemps,
+                       tail(PhenoFlex(temp=hourtemps,
                                  times=c(1: length(hourtemps)),
                                  A0=simulation_par[7],
                                  A1=simulation_par[8],
@@ -108,12 +110,13 @@ for(mon in month_range)
                                  Tf=simulation_par[9],
                                  slope=simulation_par[12],
                                  deg_celsius=TRUE,
-                                 basic_output=FALSE)$y[length(hourtemps)]/
-                                         (length(hourtemps)/24))
+                                 basic_output=FALSE)$y,1)/
+                         days_in_month(mon))
+                                       
           heat_eff<-c(heat_eff,
-                      cumsum(GDH_response(hourtemps,
-                                          simulation_par))[length(hourtemps)]/
-                                                 (length(hourtemps)/24))
+                      tail(cumsum(GDH_response(hourtemps,
+                                          simulation_par)),1)/
+                        days_in_month(mon))
           mins<-c(mins,tmin)
           maxs<-c(maxs,tmax)
           month<-c(month,mon)
