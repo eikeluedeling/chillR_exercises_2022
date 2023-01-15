@@ -18,11 +18,8 @@ leaflet() %>%
 CKA_Alexander_Lucas<-read.csv("data/Alexander_Lucas_bloom_1958_2019.csv")
 CKA_weather<-read.csv("data/TMaxTMin1958-2019_patched.csv")
 
-## CKA_Alexander_Lucas<-read.csv("Alexander_Lucas_bloom_1958_2019.csv")
-## CKA_weather<-read.csv("TMaxTMin1958-2019_patched.csv")
 
-kable(CKA_Alexander_Lucas[1:5,]) %>%
-  kable_styling("striped", position = "left", font_size = 10)
+head(CKA_Alexander_Lucas)
 
 
 Alexander_Lucas<-melt(CKA_Alexander_Lucas,
@@ -33,8 +30,7 @@ Alexander_Lucas$Month<-as.numeric(substr(Alexander_Lucas$YEARMODA,5,6))
 Alexander_Lucas$Day<-as.numeric(substr(Alexander_Lucas$YEARMODA,7,8))
 Alexander_Lucas<-make_JDay(Alexander_Lucas)
 
-kable(Alexander_Lucas[1:5,]) %>%
-  kable_styling("striped", position = "left", font_size=10)
+head(Alexander_Lucas)
 
 
 
@@ -111,8 +107,7 @@ phenology_trends<-
                  linear_trend_last[[1]][2])
              )
 
-kable(phenology_trends)  %>%
-  kable_styling("striped", position = "left", font_size = 10)
+phenology_trends
 
 
 frost_df=data.frame(
@@ -223,7 +218,7 @@ ggplot(data=Ribbon_Lucas,aes(Pheno_year)) +
              labels = c("1", "5", "10", "15", "20"),
              name="Frost hours") +
   theme_bw(base_size=15) +
-  ylim(c(80,140))
+  ylim(c(77,140))
 
 
 # identify frost events that overlap with bloom
@@ -267,7 +262,7 @@ ggplot(data=Ribbon_Lucas,aes(Pheno_year)) +
     values=c("light green","red","light blue"),
     name="Frost timing") +
   theme_bw(base_size=15) +
-  ylim(c(80,140))
+  ylim(c(77,140))
 
 
 Bloom_frost_trend<-aggregate(

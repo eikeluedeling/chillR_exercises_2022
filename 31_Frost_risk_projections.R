@@ -17,40 +17,49 @@ past_months <- past_weather %>% group_by(RCP_Time, Year, Month) %>% summarize(Tm
 
 
 # Load all data for future scenarios (combination of Time and RCP)
-future_temps <- list("Bonn_2050_rcp45" = load_temperature_scenarios("data/Weather_2", "Bonn_2050_rcp45"),
-                     "Bonn_2050_rcp85" = load_temperature_scenarios("data/Weather_2", "Bonn_2050_rcp85"),
-                     "Bonn_2085_rcp45" = load_temperature_scenarios("data/Weather_2", "Bonn_2085_rcp45"),
-                     "Bonn_2085_rcp85" = load_temperature_scenarios("data/Weather_2", "Bonn_2085_rcp85"))
+future_temps <- list("Bonn_2050_rcp45" = load_temperature_scenarios("data/Weather", "Bonn_2050_rcp45"),
+                     "Bonn_2050_rcp85" = load_temperature_scenarios("data/Weather", "Bonn_2050_rcp85"),
+                     "Bonn_2085_rcp45" = load_temperature_scenarios("data/Weather", "Bonn_2085_rcp45"),
+                     "Bonn_2085_rcp85" = load_temperature_scenarios("data/Weather", "Bonn_2085_rcp85"))
 
 # Combine the datesets of each list into a single dataset per scenario
-future_temps <- data.frame(bind_rows(lapply(future_temps, function (x) bind_rows(x, .id = "GCM")), .id = "List"))
+future_temps <- data.frame(
+  bind_rows(
+    lapply(future_temps, function (x) bind_rows(x, .id = "GCM")), .id = "List"))
 
 # Re-structure the data. Add the RCP, Time and RCP_Time columns
-future_temps <- future_temps %>% mutate(RCP = if_else(substr(.$List, 11, 16) == "rcp45", "RCP4.5", "RCP8.5"),
-                                        Time = substr(.$List, 6, 9)) %>% 
+future_temps <- future_temps %>%
+  mutate(RCP = if_else(substr(.$List, 11, 16) == "rcp45", "RCP4.5", "RCP8.5"),
+         Time = substr(.$List, 6, 9)) %>% 
   select(DATE, Year, Month, Day, Tmin, Tmax, RCP, Time, GCM) %>% 
   mutate(RCP_Time = paste0(.$RCP, "_", .$Time))
   
 # Summarize the data by month. Compute the mean of Tmin and Tmax by RCP_Time, Year, and Month
-future_months <- future_temps %>% group_by(RCP_Time, Year, Month) %>%  summarize(Tmin = mean(Tmin, na.rm = TRUE),
-                                                                                 Tmax = mean(Tmax, na.rm = TRUE))
+future_months <- future_temps %>%
+  group_by(RCP_Time, Year, Month) %>%
+  summarize(Tmin = mean(Tmin, na.rm = TRUE),
+            Tmax = mean(Tmax, na.rm = TRUE))
   
 
 # Merge the past and future months to plot them together
 all_months <- rbind(past_months, future_months)
 
 # Add a column for the name of the month 
-all_months$month_name <- factor(all_months$Month, levels = c(6 : 12, 1 : 5), labels = month.name[c(6 : 12, 1 : 5)])
+all_months$month_name <- factor(all_months$Month, levels = c(6 : 12, 1 : 5),
+                                labels = month.name[c(6 : 12, 1 : 5)])
 
 # Calculate the hulls for each group
-hull_temps <- all_months %>% group_by(RCP_Time, month_name) %>% slice(chull(Tmin, Tmax))
+hull_temps <- all_months %>%
+  group_by(RCP_Time, month_name) %>%
+  slice(chull(Tmin, Tmax))
 
 
 # Load the weather data from the experimental seasons to generate an "Enhanced" temps category
 enhanced <- read.csv("data/final_weather_data_S1_S2_pear_hourly.csv")
 
 # Summarize the data. Compute the minimum and maximum records in a daily basis
-enhanced <- enhanced %>% group_by(YEARMODA, Treatment, Year, Month, Day, JDay) %>% 
+enhanced <- enhanced %>%
+  group_by(YEARMODA, Treatment, Year, Month, Day, JDay) %>% 
   summarize(Tmin = min(Temp, na.rm = TRUE),
             Tmax = max(Temp, na.rm = TRUE))
 
@@ -126,14 +135,18 @@ ggplot(hull_temps_both_conference[hull_temps_both_conference$Month %in% c(10,11,
 
 # Import the phenology data for the historic period 1958-2019
 # Note that we are selecting only the Year and full bloom columns
-historic_pheno_conference <- read.csv("data/Pheno_pear_conference_1958_2019.csv",fileEncoding="UTF-8-BOM")[c("Year", "Full_bloom")]
+historic_pheno_conference <- read.csv("data/Pheno_pear_conference_1958_2019.csv",
+                                      fileEncoding="UTF-8-BOM")[c("Year", "Full_bloom")]
 
 # Remove missing years
-historic_pheno_conference <- historic_pheno_conference[which(!historic_pheno_conference$Full_bloom==""),]
+historic_pheno_conference <- historic_pheno_conference[
+  which(!historic_pheno_conference$Full_bloom==""),]
 
 # Add a column for the JDay
-historic_pheno_conference$Full_bloom <- dormancyR::date_to_JDay(date = as.Date(historic_pheno_conference$Full_bloom, format = "%d.%m.%Y"),
-                                                                format = "%Y-%m-%d")
+historic_pheno_conference$Full_bloom <-
+  dormancyR::date_to_JDay(date = as.Date(historic_pheno_conference$Full_bloom,
+                                         format = "%d.%m.%Y"),
+                          format = "%Y-%m-%d")
 
 # Rename the columns
 colnames(historic_pheno_conference) <- c("Year", "pheno")
@@ -186,39 +199,39 @@ pheno_merged <- bind_rows(filter(historic_pheno_conference, Year != 1958),
 weather_merged <- bind_rows(past_weather[, colnames(past_weather) %in% names(exp_weather)],
                             exp_weather)
 
-## # Define the season used for calibration and validation in the PhenoFlex modelling approach
-## calibration_seasons <- sort(sample(pheno_merged$Year, 50, replace = FALSE))
-## validation_seasons <- sort(pheno_merged[!(pheno_merged$Year %in% calibration_seasons), "Year"])
-## 
-## # Define the list of seasons (weather data)
-## weather_season_list <- genSeasonList(weather_merged, mrange = c(9, 5), years = calibration_seasons)
+# Define the season used for calibration and validation in the PhenoFlex modelling approach
+calibration_seasons <- sort(sample(pheno_merged$Year, 50, replace = FALSE))
+validation_seasons <- sort(pheno_merged[!(pheno_merged$Year %in% calibration_seasons), "Year"])
 
-## # Set the initial parameters (wide ranges)
-## #          yc,  zc,  s1, Tu,     E0,      E1,     A0,          A1,   Tf, Tc, Tb, slope
-## lower <- c(20, 100, 0.1,  0, 3000.0,  9000.0, 6000.0,       5.e13,    0,  0,  0,  0.05)
-## par   <- c(40, 190, 0.5, 25, 3372.8,  9900.3, 6319.5, 5.939917e13,    4, 36,  4,  1.60)
-## upper <- c(80, 500, 1.0, 30, 4000.0, 10000.0, 7000.0,       6.e13,   10, 40, 10, 50.00)
-## 
-## # Run the fitter
-## pheno_fit <- phenologyFitter(par.guess = par,
-##                              modelfn = PhenoFlex_GDHwrapper,
-##                              bloomJDays = pheno_merged[pheno_merged$Year %in%
-##                                                          calibration_seasons, "pheno"],
-##                              SeasonList = weather_season_list,
-##                              lower = lower,
-##                              upper = upper,
-##                              control = list(smooth = FALSE,
-##                                             verbose = FALSE,
-##                                             maxit = 2000,
-##                                             nb.stop.improvement = 20))
-## 
-## # Save the resulting parameters to folder (to avoid running the phenology fitter again)
-## write.csv(pheno_fit$par, "data/PhenoFlex_hist_exp_pear.csv", row.names = FALSE)
-## 
-## # Save the results of the predicted phenology for the calibration seasons
-## write.csv(data.frame(pheno_merged[pheno_merged$Year %in% calibration_seasons, ],
-##                      "Predicted" = pheno_fit$pbloomJDays), "data/PhenoFlex_hist_exp_predicted_bloom_pear.csv",
-##           row.names = FALSE)
+# Define the list of seasons (weather data)
+weather_season_list <- genSeasonList(weather_merged, mrange = c(9, 5), years = calibration_seasons)
+
+# Set the initial parameters (wide ranges)
+#          yc,  zc,  s1, Tu,     E0,      E1,     A0,          A1,   Tf, Tc, Tb, slope
+lower <- c(20, 100, 0.1,  0, 3000.0,  9000.0, 6000.0,       5.e13,    0,  0,  0,  0.05)
+par   <- c(40, 190, 0.5, 25, 3372.8,  9900.3, 6319.5, 5.939917e13,    4, 36,  4,  1.60)
+upper <- c(80, 500, 1.0, 30, 4000.0, 10000.0, 7000.0,       6.e13,   10, 40, 10, 50.00)
+
+# Run the fitter
+pheno_fit <- phenologyFitter(par.guess = par,
+                             modelfn = PhenoFlex_GDHwrapper,
+                             bloomJDays = pheno_merged[pheno_merged$Year %in%
+                                                         calibration_seasons, "pheno"],
+                             SeasonList = weather_season_list,
+                             lower = lower,
+                             upper = upper,
+                             control = list(smooth = FALSE,
+                                            verbose = FALSE,
+                                            maxit = 2000,
+                                            nb.stop.improvement = 20))
+
+# Save the resulting parameters to folder (to avoid running the phenology fitter again)
+write.csv(pheno_fit$par, "data/PhenoFlex_hist_exp_pear.csv", row.names = FALSE)
+
+# Save the results of the predicted phenology for the calibration seasons
+write.csv(data.frame(pheno_merged[pheno_merged$Year %in% calibration_seasons, ],
+                     "Predicted" = pheno_fit$pbloomJDays), "data/PhenoFlex_hist_exp_predicted_bloom_pear.csv",
+          row.names = FALSE)
 
 # Read the parameters
 params <- read.csv("data/PhenoFlex_hist_exp_pear.csv")[[1]]
@@ -243,7 +256,7 @@ calibration_metrics <- data.frame("Metric" = c("RMSEP", "RPIQ"),
                                                     RPIQ(out_df$Predicted,
                                                          out_df$pheno)))
 
-kableExtra::kable(calibration_metrics)
+calibration_metrics
 
 # Plot the results to see the overall fitting
 ggplot(out_df, aes(pheno, Predicted)) +
@@ -275,7 +288,7 @@ validation_metrics <- data.frame(calibration_metrics,
                                                   RPIQ(valid_df$Predicted,
                                                        valid_df$pheno, na.rm = TRUE)))
 
-kableExtra::kable(validation_metrics)
+validation_metrics
 
 
 
@@ -326,8 +339,8 @@ for (scenario in scenarios){
       # Add the bloom date to the primer data set
       future_bloom[future_bloom$RCP_Time == scenario & 
                      future_bloom$GCM == climate_model & 
-                     future_bloom$Year == names(temp_seasons_list)[i], "Pheno"] <- PhenoFlex_GDHwrapper(temp_seasons_list[[i]],
-                                                                                                        params)
+                     future_bloom$Year == names(temp_seasons_list)[i], "Pheno"] <-
+        PhenoFlex_GDHwrapper(temp_seasons_list[[i]], params)
     }
   }
 }
