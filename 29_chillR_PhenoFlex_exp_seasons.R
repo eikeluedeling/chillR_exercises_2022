@@ -29,12 +29,13 @@ pheno["Treatment"] <- pheno$Treatment + 2019
 colnames(pheno) <- c("Year", "pheno")
 
 
-kableExtra::kable(head(data))
+head(data)
 
-kableExtra::kable(head(pheno), row.names = FALSE)
+head(pheno)
+
+# Now we define two subsets: one with all season, and one that excludes seasons with marginal chill
 
 pheno_marginal <- pheno
-
 pheno_normal <- pheno[!(pheno$Year %in% c(2032, 2061, 2065, 2077, 2081)), ]
 
 # Define a vector of calibration and validation seasons. Marginal includes the marginal seasons
@@ -50,48 +51,48 @@ validation_seasons <- sort(pheno_normal[!(pheno_normal$Year %in% calibration_sea
 season_list_marginal <- genSeasonList(data, mrange = c(9, 7), years = calibration_seasons_marginal)
 season_list_normal <- genSeasonList(data, mrange = c(9, 7), years = calibration_seasons_normal)
 
-## # Set the initial parameters (wide ranges)
-## #          yc,  zc,  s1, Tu,     E0,      E1,     A0,          A1,   Tf, Tc, Tb, slope
-## lower <- c(20, 100, 0.1,  0, 3000.0,  9000.0, 6000.0,       5.e13,    0,  0,  0,  0.05)
-## par   <- c(40, 190, 0.5, 25, 3372.8,  9900.3, 6319.5, 5.939917e13,    4, 36,  4,  1.60)
-## upper <- c(80, 500, 1.0, 30, 4000.0, 10000.0, 7000.0,       6.e13,   10, 40, 10, 50.00)
-## 
-## # Run the fitter
-## pheno_fit_marginal <- phenologyFitter(par.guess = par,
-##                                       modelfn = PhenoFlex_GDHwrapper,
-##                                       bloomJDays = pheno_marginal[pheno_marginal$Year %in%
-##                                                                     calibration_seasons_marginal, "pheno"],
-##                                       SeasonList = season_list_marginal,
-##                                       lower = lower,
-##                                       upper = upper,
-##                                       control = list(smooth = FALSE,
-##                                                      verbose = FALSE,
-##                                                      maxit = 100,
-##                                                      nb.stop.improvement = 10))
-## 
-## # Same for version 2
-## pheno_fit_normal <- phenologyFitter(par.guess = par,
-##                                     modelfn = PhenoFlex_GDHwrapper,
-##                                     bloomJDays = pheno_normal[pheno_normal$Year %in%
-##                                                                 calibration_seasons_normal, "pheno"],
-##                                     SeasonList = season_list_normal,
-##                                     lower = lower,
-##                                     upper = upper,
-##                                     control = list(smooth = FALSE,
-##                                                    verbose = FALSE,
-##                                                    maxit = 100,
-##                                                    nb.stop.improvement = 10))
+# Set the initial parameters (wide ranges)
+#          yc,  zc,  s1, Tu,     E0,      E1,     A0,          A1,   Tf, Tc, Tb, slope
+lower <- c(20, 100, 0.1,  0, 3000.0,  9000.0, 6000.0,       5.e13,    0,  0,  0,  0.05)
+par   <- c(40, 190, 0.5, 25, 3372.8,  9900.3, 6319.5, 5.939917e13,    4, 36,  4,  1.60)
+upper <- c(80, 500, 1.0, 30, 4000.0, 10000.0, 7000.0,       6.e13,   10, 40, 10, 50.00)
 
-## write.csv(pheno_fit_marginal$par, "data/PhenoFlex_marginal_params.csv", row.names = FALSE)
-## write.csv(pheno_fit_normal$par, "data/PhenoFlex_normal_params.csv", row.names = FALSE)
-## 
-## write.csv(data.frame(pheno_marginal[pheno_marginal$Year %in% calibration_seasons_marginal, ],
-##           "Predicted" = pheno_fit_marginal$pbloomJDays), "data/PhenoFlex_marginal_predicted_bloom.csv",
-##           row.names = FALSE)
-## write.csv(data.frame(pheno_normal[pheno_normal$Year %in% calibration_seasons_normal, ],
-##           "Predicted" = pheno_fit_normal$pbloomJDays), "data/PhenoFlex_normal_predicted_bloom.csv",
-##           row.names = FALSE)
-## 
+# Run the fitter
+pheno_fit_marginal <- phenologyFitter(par.guess = par,
+                                      modelfn = PhenoFlex_GDHwrapper,
+                                      bloomJDays = pheno_marginal[pheno_marginal$Year %in%
+                                                                    calibration_seasons_marginal, "pheno"],
+                                      SeasonList = season_list_marginal,
+                                      lower = lower,
+                                      upper = upper,
+                                      control = list(smooth = FALSE,
+                                                     verbose = FALSE,
+                                                     maxit = 100,
+                                                     nb.stop.improvement = 10))
+
+# Same for version 2
+pheno_fit_normal <- phenologyFitter(par.guess = par,
+                                    modelfn = PhenoFlex_GDHwrapper,
+                                    bloomJDays = pheno_normal[pheno_normal$Year %in%
+                                                                calibration_seasons_normal, "pheno"],
+                                    SeasonList = season_list_normal,
+                                    lower = lower,
+                                    upper = upper,
+                                    control = list(smooth = FALSE,
+                                                   verbose = FALSE,
+                                                   maxit = 100,
+                                                   nb.stop.improvement = 10))
+
+write.csv(pheno_fit_marginal$par, "data/PhenoFlex_marginal_params.csv", row.names = FALSE)
+write.csv(pheno_fit_normal$par, "data/PhenoFlex_normal_params.csv", row.names = FALSE)
+
+write.csv(data.frame(pheno_marginal[pheno_marginal$Year %in% calibration_seasons_marginal, ],
+          "Predicted" = pheno_fit_marginal$pbloomJDays), "data/PhenoFlex_marginal_predicted_bloom.csv",
+          row.names = FALSE)
+write.csv(data.frame(pheno_normal[pheno_normal$Year %in% calibration_seasons_normal, ],
+          "Predicted" = pheno_fit_normal$pbloomJDays), "data/PhenoFlex_normal_predicted_bloom.csv",
+          row.names = FALSE)
+
 
 # Read the parameters
 params_marginal <- read.csv("data/PhenoFlex_marginal_params.csv")[[1]]
@@ -115,7 +116,7 @@ calibration_metrics <- data.frame("Metric" = c("RMSEP", "RPIQ"),
                                                         RPIQ(out_df_normal$Predicted,
                                                              out_df_normal$pheno)))
 
-kableExtra::kable(calibration_metrics)
+calibration_metrics
 
 out_df_all <- bind_rows("PhenoFlex marginal" = out_df_marginal,
                         "PhenoFlex normal" = out_df_normal,
@@ -165,7 +166,7 @@ validation_metrics <- data.frame("Metric" = c("RMSEP", "RPIQ"),
                                                         RPIQ(valid_df_normal$Predicted,
                                                              valid_df_normal$pheno)))
 
-kableExtra::kable(validation_metrics)
+validation_metrics
 
 
 # Create a unique data set
@@ -240,8 +241,8 @@ temp_response <- bind_rows(temp_response_marginal, temp_response_normal)
 
 # Plotting
 ggplot(temp_response, aes(Temp)) +
-  geom_line(aes(y = Chill_res, color = "Chill")) +
-  geom_line(aes(y = Heat_res * 25, color = "Heat")) +
+  geom_line(aes(y = Chill_res, color = "Chill"),lwd=1.3) +
+  geom_line(aes(y = Heat_res * 25, color = "Heat"),lwd=1.3) +
   scale_y_continuous(expand = expansion(mult = c(0.001, 0.01)),
                      sec.axis = sec_axis(~ . / 25, name = "Arbitrary heat units")) +
   scale_x_continuous(expand = expansion(mult = 0)) +
