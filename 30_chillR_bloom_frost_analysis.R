@@ -62,9 +62,12 @@ ggplot(data=Alexander_Lucas,aes(Pheno_year,JDay,col=variable)) +
   ylab("Julian date (day of the year)") 
 
 require(Kendall)
-Kendall_first<-Kendall(x=Alexander_Lucas$Pheno_year[which(Alexander_Lucas$variable=="First_bloom")], y=Alexander_Lucas$JDay[which(Alexander_Lucas$variable=="First_bloom")])
-Kendall_full<-Kendall(x=Alexander_Lucas$Pheno_year[which(Alexander_Lucas$variable=="Full_bloom")], y=Alexander_Lucas$JDay[which(Alexander_Lucas$variable=="Full_bloom")])
-Kendall_last<-Kendall(x=Alexander_Lucas$Pheno_year[which(Alexander_Lucas$variable=="Last_bloom")], y=Alexander_Lucas$JDay[which(Alexander_Lucas$variable=="Last_bloom")])
+Kendall_first<-Kendall(x=Alexander_Lucas$Pheno_year[which(Alexander_Lucas$variable=="First_bloom")],
+                       y=Alexander_Lucas$JDay[which(Alexander_Lucas$variable=="First_bloom")])
+Kendall_full<-Kendall(x=Alexander_Lucas$Pheno_year[which(Alexander_Lucas$variable=="Full_bloom")],
+                      y=Alexander_Lucas$JDay[which(Alexander_Lucas$variable=="Full_bloom")])
+Kendall_last<-Kendall(x=Alexander_Lucas$Pheno_year[which(Alexander_Lucas$variable=="Last_bloom")],
+                      y=Alexander_Lucas$JDay[which(Alexander_Lucas$variable=="Last_bloom")])
 
 Kendall_first
 Kendall_full
@@ -195,7 +198,7 @@ ggplot(data=Alexander_Lucas,
              labels = c("1", "5", "10", "15", "20"),
              name="Frost hours") +
   theme_bw(base_size=15) +
-  ylim(c(80,140))
+  ylim(c(77,140))
 
 
 
@@ -275,7 +278,8 @@ DuringBloom<-
   Bloom_frost_trend[which(Bloom_frost_trend$Frost_timing=="During bloom"),]
 
 ggplot(data=DuringBloom,aes(Year,Frost_hours)) +
-  geom_col() 
+  geom_col() +
+  ylab("Frost hours")
 
 
 Kendall(x=DuringBloom$Year,y=DuringBloom$Frost_hours)
