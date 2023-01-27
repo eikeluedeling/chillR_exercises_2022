@@ -100,7 +100,7 @@ ggplot(hull_temps_both[which(hull_temps_both$Month %in% c(10,11,12,1,2,3)),],
                              alpha("dark green",0.3),
                              alpha("coral",0.3),
                              alpha("dark red",0.3))) +
-  theme_bw(base_size = 15)
+  theme_bw(base_size = 12)
 
 # Remove the temperature for the treatments excluded from the analysis. These treatments may be a bit unrealistic and therefore
 # difficult to be explained by the model
@@ -128,7 +128,7 @@ ggplot(hull_temps_both_conference[hull_temps_both_conference$Month %in% c(10,11,
                              alpha("dark green",0.3),
                              alpha("coral",0.3),
                              alpha("dark red",0.3))) +
-  theme_bw(base_size = 15)
+  theme_bw(base_size = 12)
 
 # Save the plot to the folder
 # ggsave("model_validity_domain.png", width = 16, height = 15, units = "cm", dpi = 600)
@@ -355,7 +355,8 @@ temps_past_scenarios <- load_temperature_scenarios("data/Weather/", "Bonn_histor
 temps_past_scenarios <- bind_rows(temps_past_scenarios, .id = "Scen_year")
 
 # Make a primer dataset to allocate the results of the bloom projection
-simulated_bloom <- temps_past_scenarios %>% group_by(Scen_year, Year) %>% summarise(Pheno = NA)
+simulated_bloom <- temps_past_scenarios %>% group_by(Scen_year, Year) %>%
+  summarise(Pheno = NA)
 
 # Define the scenario years to be used in the loop
 scen_years <- unique(simulated_bloom$Scen_year)
